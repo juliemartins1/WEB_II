@@ -4,8 +4,8 @@ import { auditLog, isAuthenticated } from '../middleware/auth';
 
 const router = Router();
 
-router.get('/signup', AuthController.exibirCadastro);
-router.post('/signup', auditLog('Tentativa de cadastro'), AuthController.cadastrar);
+router.get('/signup', AuthController.exibirSignup);
+router.post('/signup', auditLog('Tentativa de cadastro'), AuthController.signup);
 
 router.get('/verify-email', AuthController.exibirVerificarEmail);
 router.post('/verify-email', auditLog('Verificação de e-mail'), AuthController.verificarEmail);
@@ -14,7 +14,6 @@ router.post('/resend-code', auditLog('Reenvio de código de verificação'), Aut
 router.get('/login', AuthController.exibirLogin);
 router.post('/login', auditLog('Tentativa de login'), AuthController.login);
 
-// ✅ Logout corrigido
 router.post(
     '/logout',
     isAuthenticated,
