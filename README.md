@@ -65,6 +65,7 @@ npm install
 Crie um arquivo `.env` na raiz do projeto:
 
 ```env
+```
 PORT=3333
 SESSION_SECRET=uma_chave_secreta_segura
 
@@ -74,7 +75,6 @@ MAIL_SECURE=false
 MAIL_USER=seuemail@gmail.com
 MAIL_PASS=sua_senha_de_app
 MAIL_FROM="MarketMVP <seuemail@gmail.com>"
-```
 
 > ⚠️ Para contas Gmail, utilize **senha de aplicativo**.
 
