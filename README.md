@@ -1,10 +1,10 @@
- Trabalho I - Sistema de Usuários
+# Trabalho I - Sistema de Usuários
 
-Aplicação web desenvolvida em **Node.js + Express + TypeScript + EJS + SQLite**, com autenticação, controle de acesso por perfil, validação de e-mail e auditoria de ações.
+Aplicação web desenvolvida com **Node.js + Express + TypeScript + EJS + SQLite**, implementando autenticação, controle de acesso por perfil, validação de e-mail e auditoria de ações.
 
 ---
 
- Funcionalidades
+##  Funcionalidades
 
 * Cadastro de usuários (comprador e vendedor)
 * Login com autenticação por sessão
@@ -13,10 +13,10 @@ Aplicação web desenvolvida em **Node.js + Express + TypeScript + EJS + SQLite*
   * Admin
   * Comprador
   * Vendedor
-* Área administrativa (apenas admin):
+* Área administrativa (acesso exclusivo do admin):
 
   * Listagem de usuários
-  * Desativação/ativação de contas
+  * Ativação/desativação de contas
   * Visualização de logs
 * Validação de e-mail com código único:
 
@@ -26,11 +26,11 @@ Aplicação web desenvolvida em **Node.js + Express + TypeScript + EJS + SQLite*
 * Auditoria de ações:
 
   * Registro de todas as requisições não-GET
-  * Armazena usuário, método, rota e resumo
+  * Armazena usuário, método, rota e resumo da ação
 
 ---
 
- Tecnologias utilizadas
+##  Tecnologias utilizadas
 
 * Node.js
 * Express
@@ -43,16 +43,16 @@ Aplicação web desenvolvida em **Node.js + Express + TypeScript + EJS + SQLite*
 
 ---
 
- Instalação
+## Instalação
 
-1. Clone o repositório:
+Clone o repositório:
 
 ```bash
-git clone https://github.com/seu-usuario/seu-repositorio.git
-cd Trabalho_01
+git clone https://github.com/juliemartins1/WEB_II.git
+cd WEB_II
 ```
 
-2. Instale as dependências:
+Instale as dependências:
 
 ```bash
 npm install
@@ -60,7 +60,7 @@ npm install
 
 ---
 
- Configuração
+## Configuração
 
 Crie um arquivo `.env` na raiz do projeto:
 
@@ -76,19 +76,19 @@ MAIL_PASS=sua_senha_de_app
 MAIL_FROM="MarketMVP <seuemail@gmail.com>"
 ```
 
- Para Gmail, utilize senha de aplicativo.
+> ⚠️ Para contas Gmail, utilize **senha de aplicativo**.
 
 ---
 
- Execução
+## Execução
 
-### Modo desenvolvimento:
+### Modo desenvolvimento
 
 ```bash
 npm run dev
 ```
 
-### Build e execução:
+### Build e execução
 
 ```bash
 npm run build
@@ -103,19 +103,30 @@ http://localhost:3333
 
 ---
 
- Usuários de teste
+## Usuários de teste
 
- Admin (criado automaticamente)
+**Administrador (criado automaticamente)**
 
 * Email: `admin@marketmvp.com`
 * Senha: `admin123`
 
 ---
 
- Regras do sistema
 
-* Usuários desativados **não podem fazer login**
-* Usuários devem validar o e-mail antes de acessar o sistema
+## Fluxo de validação de e-mail
+
+1. O usuário cria a conta.
+2. O sistema gera um código de verificação de 6 dígitos.
+3. O código é enviado por e-mail.
+4. O usuário informa o código na tela de verificação.
+5. Após validação, o acesso ao sistema é liberado.
+
+---
+
+## Regras do sistema
+
+* Usuários desativados **não podem realizar login**
+* O e-mail deve ser validado antes do acesso
 * Apenas administradores podem:
 
   * Gerenciar usuários
@@ -124,7 +135,7 @@ http://localhost:3333
 
 ---
 
- Estrutura do projeto
+## Estrutura do projeto
 
 ```
 src/
@@ -138,17 +149,15 @@ src/
 
 ---
 
- Observações
+## Observações
 
-* O sistema utiliza sessões para autenticação
-* Senhas são armazenadas com hash (bcrypt)
-* Código de verificação é gerado dinamicamente e possui validade
+* O sistema utiliza **sessões** para autenticação
+* Senhas são armazenadas com **hash (bcrypt)**
+* O código de verificação possui **tempo de expiração**
 * Logs são registrados mesmo em caso de erro
 
 ---
 
- Objetivo do trabalho
+##  Objetivo do trabalho
 
-Implementar um sistema completo de autenticação com controle de acesso por perfil, validação de e-mail e auditoria de ações, utilizando o Template base fornecido na disciplina.
-
----
+Desenvolver uma aplicação web completa com autenticação, controle de acesso por perfil, validação de e-mail e auditoria de ações, utilizando o template base fornecido na disciplina.

@@ -14,13 +14,15 @@
     "author": "",
     "license": "ISC",
     "type": "commonjs",
+    "@types/nodemailer": "^6.4.17",
     "dependencies": {
         "bcrypt": "^5.1.1",
         "better-sqlite3": "^12.8.0",
         "dotenv": "^17.3.1",
-        "ejs": "4.0.1",
+        "ejs": "^4.0.1",
         "express": "4.21.2",
         "express-session": "^1.19.0",
+        "nodemailer": "^6.10.1",
         "sqlite": "^5.1.1",
         "sqlite3": "5.1.7"
     },

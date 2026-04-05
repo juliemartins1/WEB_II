@@ -17,9 +17,6 @@ export function findByEMail(email: string) {
     return db.prepare('SELECT * FROM users WHERE email = ?').get(email) as User | undefined;
 }
 
-export function findByEmail(email: string) {
-    return findByEMail(email);
-}
 
 export function findById(id: number) {
     return db.prepare('SELECT * FROM users WHERE id = ?').get(id) as User | undefined;

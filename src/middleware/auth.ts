@@ -22,9 +22,8 @@ export function isAuthenticated(req: Request, res: Response, next: NextFunction)
 export function isAdmin(req: Request, res: Response, next: NextFunction) {
     if (req.session.user?.tipo_usuario === 'admin') return next();
 
-    return res.status(403).render('partial/error', {
-        message: 'Acesso restrito a administrador.'
-    });
+    return res.status(403).render('error', { message: 'Acesso restrito a administrador.' });
+
 }
 
 export function isTipoUsuario(...tipo_usuarios: string[]) {
@@ -33,9 +32,7 @@ export function isTipoUsuario(...tipo_usuarios: string[]) {
             return next();
         }
 
-        return res.status(403).render('partial/error', {
-            message: 'Acesso não autorizado para seu perfil.'
-        });
+        return res.status(403).render('error', { message: 'Acesso não autorizado para seu perfil.' });
     };
 }
 

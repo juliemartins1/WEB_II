@@ -1,5 +1,7 @@
 import express from 'express';
 import session from 'express-session';
+import dotenv from 'dotenv';
+dotenv.config();
 
 declare module 'express-session' {
     interface SessionData {
@@ -15,7 +17,7 @@ import dashboardRoutes from './routes/dashboard';
 import bcrypt from 'bcrypt';
 
 const app = express();
-const port = 3333;
+const port = Number(process.env.PORT || 3333);
 
 app.set('view engine', 'ejs');
 app.set('views', './src/views');
@@ -24,7 +26,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
 app.use(session({
-    secret: 'dev-secret',
+    secret: process.env.SESSION_SECRET || 'dev-secret',
     resave: false,
     saveUninitialized: false,
     cookie: { maxAge: 1000 * 60 * 60 * 8 },
