@@ -41,7 +41,7 @@ app.get('/', (req, res) => {
     res.redirect('/login');
 });
 
-// Seed: cria admin padrão se não existir
+
 const adminExists = db.prepare("SELECT id FROM users WHERE tipo_usuario = 'admin' LIMIT 1").get();
 if (!adminExists) {
     const hash = bcrypt.hashSync('admin123', 10);
