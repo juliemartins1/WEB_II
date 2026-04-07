@@ -1,71 +1,92 @@
 <!doctype html>
 <html lang="pt-BR">
-  <head>
-    <title>MarketMVP | Criar usuário</title>
+
+<head>
+  <title>MarketMVP | Criar usuário</title>
   <%- include('_head') %>
-  </head>
-  <body class="font-body bg-brand-50 text-brand-900">
-    <div class="min-h-screen grid-bg">
-      <header class="border-b border-brand-200/80 bg-white/75 backdrop-blur">
-        <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-          <a href="/" class="font-display text-xl font-bold">MarketMVP</a>
-          <nav class="flex items-center gap-5 text-sm font-medium">
-            <a href="/admin/users" class="hover:text-accent-600">Usuários</a>
-            <a href="/admin/users/create" class="font-semibold text-accent-600">Criar usuário</a>
-            <a href="/admin/logs" class="hover:text-accent-600">Logs</a>
-            <form method="POST" action="/logout">
-              <button type="submit" class="hover:text-accent-600">Sair</button>
-            </form>
-          </nav>
-        </div>
-      </header>
+</head>
 
-      <main class="mx-auto flex max-w-7xl items-center justify-center px-4 py-10 sm:px-6 lg:px-8">
-        <section class="w-full max-w-lg rounded-3xl border border-brand-200 bg-white p-6 shadow-sm">
-          <p class="text-xs font-semibold uppercase tracking-wider text-brand-600">Administração</p>
-          <h1 class="mt-1 font-display text-3xl font-bold">Criar usuário</h1>
-          <p class="mt-1 text-sm text-brand-700">Crie contas de qualquer perfil, incluindo administradores.</p>
-
-          <% if (typeof error !== 'undefined' && error) { %>
-            <p class="mt-3 rounded-xl bg-coral-500/10 px-4 py-2 text-sm font-semibold text-coral-600"><%= error %></p>
-          <% } %>
-          <% if (typeof sucesso !== 'undefined' && sucesso) { %>
-            <p class="mt-3 rounded-xl bg-accent-500/10 px-4 py-2 text-sm font-semibold text-accent-600"><%= sucesso %></p>
-          <% } %>
-
-          <form method="POST" action="/admin/users/create" class="mt-5 space-y-4">
-            <label class="block">
-              <span class="mb-1 block text-sm font-medium">Nome completo</span>
-              <input type="text" name="name" required
-                class="w-full rounded-xl border border-brand-300 px-4 py-2.5 outline-none ring-coral-500 focus:ring" />
-            </label>
-            <label class="block">
-              <span class="mb-1 block text-sm font-medium">Email</span>
-              <input type="email" name="email" required
-                class="w-full rounded-xl border border-brand-300 px-4 py-2.5 outline-none ring-coral-500 focus:ring" />
-            </label>
-            <label class="block">
-              <span class="mb-1 block text-sm font-medium">Senha</span>
-              <input type="password" name="password" required
-                class="w-full rounded-xl border border-brand-300 px-4 py-2.5 outline-none ring-coral-500 focus:ring" />
-            </label>
-            <label class="block">
-              <span class="mb-1 block text-sm font-medium">Perfil</span>
-              <select name="tipo_usuario" class="w-full rounded-xl border border-brand-300 px-4 py-2.5 outline-none ring-coral-500 focus:ring">
-                <option value="comprador">Comprador</option>
-                <option value="vendedor">Vendedor</option>
-                <option value="admin">Administrador</option>
-              </select>
-            </label>
-            <p class="text-xs text-brand-500">Contas de administrador são criadas já verificadas. Compradores e vendedores receberão um código de verificação por e-mail.</p>
-            <button type="submit" class="w-full rounded-xl bg-brand-900 px-4 py-2.5 font-semibold text-brand-50 hover:bg-brand-800">Criar usuário</button>
+<body class="font-body bg-brand-50 text-brand-900">
+  <div class="min-h-screen grid-bg">
+    <header class="border-b border-brand-200/80 bg-white/75 backdrop-blur">
+      <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+        <a href="/" class="font-display text-xl font-bold">MarketMVP</a>
+        <nav class="flex items-center gap-5 text-sm font-medium">
+          <a href="/admin/users" class="hover:text-accent-600">Usuários</a>
+          <a href="/admin/users/create" class="font-semibold text-accent-600">Criar usuário</a>
+          <a href="/admin/logs" class="hover:text-accent-600">Logs</a>
+          <form method="POST" action="/logout">
+            <button type="submit" class="hover:text-accent-600">Sair</button>
           </form>
+        </nav>
+      </div>
+    </header>
 
-          <div class="mt-4">
-            <a href="/admin/users" class="text-sm font-semibold text-accent-600 hover:underline">← Voltar para lista de usuários</a>
-          </div>
-        </section>
-      </main>
-    </div>
-  </body>
+    <main class="mx-auto flex max-w-7xl items-center justify-center px-4 py-10 sm:px-6 lg:px-8">
+      <section class="w-full max-w-2xl rounded-3xl border border-brand-200 bg-white p-6 shadow-sm">
+        <p class="text-xs font-semibold uppercase tracking-wider text-brand-600">Administração</p>
+        <h1 class="mt-1 font-display text-3xl font-bold">Criar usuário</h1>
+        <p class="mt-1 text-sm text-brand-700">Crie contas de qualquer perfil, incluindo administradores.</p>
+
+        <% if (typeof error !=='undefined' && error) { %>
+          <p class="mt-3 rounded-xl bg-coral-500/10 px-4 py-2 text-sm font-semibold text-coral-600">
+            <%= error %>
+          </p>
+          <% } %>
+
+            <% if (typeof sucesso !=='undefined' && sucesso) { %>
+              <p class="mt-3 rounded-xl bg-accent-500/10 px-4 py-2 text-sm font-semibold text-accent-600">
+                <%= sucesso %>
+              </p>
+              <% } %>
+
+                <form method="POST" action="/admin/users/create" class="mt-5 grid gap-4 sm:grid-cols-2">
+                  <label class="block sm:col-span-2">
+                    <span class="mb-1 block text-sm font-medium">Nome completo</span>
+                    <input type="text" name="name" required
+                      class="w-full rounded-xl border border-brand-300 px-4 py-2.5 outline-none ring-coral-500 focus:ring" />
+                  </label>
+
+                  <label class="block sm:col-span-2">
+                    <span class="mb-1 block text-sm font-medium">Email</span>
+                    <input type="email" name="email" required
+                      class="w-full rounded-xl border border-brand-300 px-4 py-2.5 outline-none ring-coral-500 focus:ring" />
+                  </label>
+
+                  <label class="block sm:col-span-1">
+                    <span class="mb-1 block text-sm font-medium">Senha</span>
+                    <input type="password" name="password" required
+                      class="w-full rounded-xl border border-brand-300 px-4 py-2.5 outline-none ring-coral-500 focus:ring" />
+                  </label>
+
+                  <label class="block sm:col-span-1">
+                    <span class="mb-1 block text-sm font-medium">Perfil</span>
+                    <select name="tipo_usuario"
+                      class="w-full rounded-xl border border-brand-300 px-4 py-2.5 outline-none ring-coral-500 focus:ring">
+                      <option value="comprador">Comprador</option>
+                      <option value="vendedor">Vendedor</option>
+                      <option value="admin">Administrador</option>
+                    </select>
+                  </label>
+
+                  <p class="sm:col-span-2 text-xs text-brand-500">
+                    Contas de administrador são criadas já verificadas. Compradores e vendedores receberão um código de
+                    verificação por e-mail.
+                  </p>
+
+                  <button type="submit"
+                    class="sm:col-span-2 rounded-xl bg-brand-900 px-4 py-2.5 font-semibold text-brand-50 hover:bg-brand-800">
+                    Criar usuário
+                  </button>
+                </form>
+
+                <div class="mt-4">
+                  <a href="/admin/users" class="text-sm font-semibold text-accent-600 hover:underline">← Voltar para
+                    lista de usuários</a>
+                </div>
+      </section>
+    </main>
+  </div>
+</body>
+
 </html>
