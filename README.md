@@ -117,7 +117,7 @@ http://localhost:3333
 
 1. O usuário cria a conta.
 2. O sistema gera um código de verificação de 6 dígitos.
-3. O código enviado aparece no terminal.
+3. O código é enviado para o email.
 4. O usuário informa o código na tela de verificação.
 5. Após validação, o acesso ao sistema é liberado.
 
