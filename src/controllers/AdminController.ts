@@ -27,7 +27,7 @@ export function alternarStatusUsuario(req: Request, res: Response) {
         return res.redirect('/admin/users');
     }
 
-    // Não permite desativar o próprio usuário logado
+  
     if (id === req.session.user!.id) {
         return res.redirect('/admin/users');
     }
