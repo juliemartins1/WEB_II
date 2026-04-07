@@ -117,7 +117,7 @@ http://localhost:3333
 
 1. O usuário cria a conta.
 2. O sistema gera um código de verificação de 6 dígitos.
-3. O código é enviado por e-mail.
+3. O código enviado aparece no terminal.
 4. O usuário informa o código na tela de verificação.
 5. Após validação, o acesso ao sistema é liberado.
 
@@ -160,4 +160,4 @@ src/
 
 ##  Objetivo do trabalho
 
-Desenvolver uma aplicação web completa com autenticação, controle de acesso por perfil, validação de e-mail e auditoria de ações, utilizando o template base fornecido na disciplina.
+Desenvolver uma aplicação web completa com autenticação, controle de acesso por perfil, validação de e-mail e auditoria de ações, utilizando o template base fornecido pelo professor.
