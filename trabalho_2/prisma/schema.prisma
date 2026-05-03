@@ -1,0 +1,113 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  cpf       String?  @unique
+  role      String   @default("buyer")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  products       Product[]
+  buyerProfile   BuyerProfile?
+  sellerProfile  SellerProfile?
+  comments       Comment[]
+  commentLikes   CommentLike[]
+}
+
+model BuyerProfile {
+  id              Int      @id @default(autoincrement())
+  phone           String
+  address         String
+  city            String
+  state           String
+  zipCode         String
+  paymentMethod   String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  userId          Int      @unique
+  user            User     @relation(fields: [userId], references: [id])
+}
+
+model SellerProfile {
+  id              Int      @id @default(autoincrement())
+  storeName       String
+  description     String
+  commercialPhone String
+  city            String
+  state           String
+  categories      String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  userId          Int      @unique
+  user            User     @relation(fields: [userId], references: [id])
+}
+
+model Product {
+  id           Int      @id @default(autoincrement())
+  name         String
+  description  String
+  category     String
+  price        Float
+  stock        Int      @default(0)
+  imageUrl     String?
+  imageStorage String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  userId       Int
+  user         User     @relation(fields: [userId], references: [id])
+
+  images       ProductImage[]
+  comments     Comment[]
+}
+
+model ProductImage {
+  id           Int      @id @default(autoincrement())
+  imageUrl     String
+  imageStorage String?
+  isMain       Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  productId    Int
+  product      Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  text      String
+  photoUrl  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  productId Int
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  userId    Int
+  user      User    @relation(fields: [userId], references: [id])
+
+  likes     CommentLike[]
+}
+
+model CommentLike {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+
+  commentId Int
+  comment   Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  userId    Int
+  user      User    @relation(fields: [userId], references: [id])
+
+  @@unique([commentId, userId])
+}

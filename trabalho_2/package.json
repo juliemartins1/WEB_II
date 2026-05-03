@@ -12,6 +12,7 @@
     "license": "ISC",
     "type": "commonjs",
     "dependencies": {
+        "@prisma/client": "^7.8.0",
         "bcrypt": "^5.1.1",
         "better-sqlite3": "^12.8.0",
         "dotenv": "^17.4.1",
@@ -29,6 +30,7 @@
         "@types/express-session": "^1.18.2",
         "@types/node": "22.13.10",
         "@types/nodemailer": "^8.0.0",
+        "prisma": "^7.8.0",
         "ts-node-dev": "2.0.0",
         "typescript": "5.8.2"
     }
