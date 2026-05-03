@@ -1,5 +1,7 @@
 import express from 'express';
 import session from 'express-session';
+import productsController from './controller/ProductsController';
+import commentsController from './controller/CommentsController';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -35,6 +37,8 @@ app.use(session({
 app.use('/', authRoutes);
 app.use('/admin', adminRoutes);
 app.use('/', dashboardRoutes);
+app.use('/', commentsController);
+app.use('/', productsController);
 
 app.get('/', (req, res) => {
     if (req.session.user) return res.redirect('/dashboard');
