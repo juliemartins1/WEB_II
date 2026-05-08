@@ -23,14 +23,14 @@ export async function signup(req: Request, res: Response) {
         });
     }
 
-    if (UserModel.findByEMail(email)){
+    if (await UserModel.findByEMail(email)) {
         return res.render('signup', {
             error: 'Email já cadastrado.'
         });
     }
 
-    const userId = UserModel.criar(name, email, password, tipo_usuario);
-    const code = UserModel.criarCodigoVerificacao(userId);
+    const userId = await UserModel.criar(name, email, password, tipo_usuario);
+    const code = await UserModel.criarCodigoVerificacao(userId);
 
     console.log('GEROU CÓDIGO:', code);
 
@@ -56,7 +56,7 @@ export function exibirVerificarEmail(req: Request, res: Response) {
     });
 }
 
-export function verificarEmail(req: Request, res: Response) {
+export async function verificarEmail(req: Request, res: Response) {
     const pendente = req.session.verificacaoPendente;
 
     if (!pendente) {
@@ -64,7 +64,7 @@ export function verificarEmail(req: Request, res: Response) {
     }
 
     const { code } = req.body;
-    const result = UserModel.validarCodigo(pendente.userId, code);
+    const result = await UserModel.validarCodigo(pendente.userId, code);
 
     if (result === 'invalido') {
         return res.render('verify-email', {
@@ -82,7 +82,7 @@ export function verificarEmail(req: Request, res: Response) {
         });
     }
 
-    UserModel.setEmailVerificado(pendente.userId);
+    await UserModel.setEmailVerificado(pendente.userId);
     delete req.session.verificacaoPendente;
 
     return res.redirect('/login?verified=1');
@@ -95,7 +95,7 @@ export async function reenviarCodigo(req: Request, res: Response) {
         return res.redirect('/signup');
     }
 
-    const code = UserModel.criarCodigoVerificacao(pendente.userId);
+    const code = await UserModel.criarCodigoVerificacao(pendente.userId);
 
     try {
         await enviarVerificacaoEmail(pendente.email, code);
@@ -121,7 +121,7 @@ export function exibirLogin(req: Request, res: Response) {
     });
 }
 
-export function login(req: Request, res: Response) {
+export async function login(req: Request, res: Response) {
     const { email, password } = req.body;
 
     if (!email || !password) {
@@ -131,7 +131,7 @@ export function login(req: Request, res: Response) {
         });
     }
 
-    const user = UserModel.findByEMail(email);
+    const user = await UserModel.findByEMail(email);
 
     if (!user || !UserModel.verificarPassword(password, user.password)) {
         return res.render('login', {

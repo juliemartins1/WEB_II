@@ -180,7 +180,7 @@ router.get('/sellers/:id', async (req: Request, res: Response) => {
         });
     }
 
-    if (seller.role !== 'vendedor') {
+    if (seller.tipo_usuario !== 'vendedor') {
         return res.render('error', {
             message: 'Este usuário não é vendedor.'
         });

@@ -4,37 +4,68 @@ import { commentPhotoUpload, fileUrl } from '../config/upload';
 
 const router = Router();
 
-/* CRIAR COMENTÁRIO */
-router.post(
-    '/products/:id/comments',
-    commentPhotoUpload.single('commentPhoto'),
-    async (req: Request, res: Response) => {
+router.post('/products/:id/comments', commentPhotoUpload.single('commentPhoto'), async (req: Request, res: Response) => {
+    if (!req.session.user) return res.redirect('/login');
 
-        if (!req.session.user) return res.redirect('/login');
+    const productId = Number(req.params.id);
+    const { text } = req.body;
 
-        const productId = Number(req.params.id);
-        const { text } = req.body;
-
-        let photoUrl: string | null = null;
-
-        if (req.file) {
-            photoUrl = fileUrl(req.file);
-        }
-
-        await prisma.comment.create({
-            data: {
-                text,
-                photoUrl,
-                productId,
-                userId: req.session.user.id
-            }
-        });
-
+    if (!text || text.trim().length < 2) {
         return res.redirect(`/products/${productId}`);
     }
-);
 
-/* CURTIR / DESCURTIR */
+    await prisma.comment.create({
+        data: {
+            text: text.trim(),
+            photoUrl: req.file ? fileUrl(req.file) : null,
+            productId,
+            userId: req.session.user.id
+        }
+    });
+
+    return res.redirect(`/products/${productId}`);
+});
+
+router.post('/comments/:id/edit', async (req: Request, res: Response) => {
+    if (!req.session.user) return res.redirect('/login');
+
+    const id = Number(req.params.id);
+    const { text } = req.body;
+
+    const comment = await prisma.comment.findUnique({ where: { id } });
+    if (!comment) return res.render('error', { message: 'Comentário não encontrado.' });
+
+    if (comment.userId !== req.session.user.id) {
+        return res.status(403).render('error', { message: 'Você só pode editar seus próprios comentários.' });
+    }
+
+    if (!text || text.trim().length < 2) {
+        return res.redirect(`/products/${comment.productId}`);
+    }
+
+    await prisma.comment.update({ where: { id }, data: { text: text.trim() } });
+    return res.redirect(`/products/${comment.productId}`);
+});
+
+router.post('/comments/:id/delete', async (req: Request, res: Response) => {
+    if (!req.session.user) return res.redirect('/login');
+
+    const id = Number(req.params.id);
+    const comment = await prisma.comment.findUnique({ where: { id } });
+
+    if (!comment) return res.render('error', { message: 'Comentário não encontrado.' });
+
+    const isOwner = comment.userId === req.session.user.id;
+    const isAdmin = req.session.user.tipo_usuario === 'admin';
+
+    if (!isOwner && !isAdmin) {
+        return res.status(403).render('error', { message: 'Você não tem permissão para excluir este comentário.' });
+    }
+
+    await prisma.comment.delete({ where: { id } });
+    return res.redirect(`/products/${comment.productId}`);
+});
+
 router.post('/comments/:id/like', async (req: Request, res: Response) => {
     if (!req.session.user) return res.redirect('/login');
 
@@ -50,16 +81,9 @@ router.post('/comments/:id/like', async (req: Request, res: Response) => {
     });
 
     if (existing) {
-        await prisma.commentLike.delete({
-            where: { id: existing.id }
-        });
+        await prisma.commentLike.delete({ where: { id: existing.id } });
     } else {
-        await prisma.commentLike.create({
-            data: {
-                commentId: id,
-                userId: req.session.user.id
-            }
-        });
+        await prisma.commentLike.create({ data: { commentId: id, userId: req.session.user.id } });
     }
 
     return res.redirect('back');

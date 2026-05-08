@@ -3,9 +3,9 @@ import * as UserModel from '../models/UserModel';
 import * as AuditModel from '../models/AuditModel';
 import { enviarVerificacaoEmail } from '../config/mailer';
 
-export function listarUsuarios(req: Request, res: Response) {
+export async function listarUsuarios(req: Request, res: Response) {
     const search = (req.query.q as string) || '';
-    let users = UserModel.listAll();
+    let users = await UserModel.listAll();
 
     if (search) {
         const q = search.toLowerCase();
@@ -19,20 +19,20 @@ export function listarUsuarios(req: Request, res: Response) {
     res.render('users', { users, search, user: req.session.user });
 }
 
-export function alternarStatusUsuario(req: Request, res: Response) {
+export async function alternarStatusUsuario(req: Request, res: Response) {
     const id = Number(req.params.id);
-    const target = UserModel.findById(id);
+    const target = await UserModel.findById(id);
 
     if (!target) {
         return res.redirect('/admin/users');
     }
 
-  
+
     if (id === req.session.user!.id) {
         return res.redirect('/admin/users');
     }
 
-    UserModel.setAtivo(id, !target.ativo);
+    await UserModel.setAtivo(id, !target.ativo);
     return res.redirect('/admin/users');
 }
 
@@ -63,7 +63,7 @@ export async function criarUsuario(req: Request, res: Response) {
         });
     }
 
-    if (UserModel.findByEMail(email)) {
+    if (await UserModel.findByEMail(email)) {
         return res.render('create-user', {
             error: 'Email já cadastrado.',
             sucesso: null,
@@ -71,8 +71,8 @@ export async function criarUsuario(req: Request, res: Response) {
         });
     }
 
-    const userId = UserModel.criar(name, email, password, tipo_usuario);
-    const code = UserModel.criarCodigoVerificacao(userId);
+    const userId = await UserModel.criar(name, email, password, tipo_usuario);
+    const code = await UserModel.criarCodigoVerificacao(userId);
 
     try {
         await enviarVerificacaoEmail(email, code);
@@ -87,7 +87,7 @@ export async function criarUsuario(req: Request, res: Response) {
     });
 }
 
-export function listarLogs(req: Request, res: Response) {
-    const logs = AuditModel.listAll();
+export async function listarLogs(req: Request, res: Response) {
+    const logs = await AuditModel.listAll();
     res.render('logs', { logs, user: req.session.user });
 }

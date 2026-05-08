@@ -15,7 +15,7 @@ const categoriasValidas = [
 ];
 
 /* LISTAR PRODUTOS */
-router.get('/marketplace', async (req: Request, res: Response) => {
+router.get(['/', '/marketplace'], async (req: Request, res: Response) => {
     const products = await prisma.product.findMany({
         include: {
             user: {
@@ -42,7 +42,7 @@ router.get('/seller/products/new', async (req: Request, res: Response) => {
         return res.redirect('/login');
     }
 
-    if (req.session.user.tipo_usuario !== 'vendedor' && req.session.user.tipo_usuario !== 'vendedor') {
+    if (req.session.user.tipo_usuario !== 'vendedor') {
         return res.render('error', {
             message: 'Apenas vendedores podem cadastrar produtos.'
         });
@@ -64,7 +64,7 @@ router.post(
                 return res.redirect('/login');
             }
 
-            if (req.session.user.tipo_usuario !== 'vendedor' && req.session.user.tipo_usuario !== 'vendedor') {
+            if (req.session.user.tipo_usuario !== 'vendedor') {
                 return res.render('error', {
                     message: 'Apenas vendedores podem cadastrar produtos.'
                 });
@@ -72,7 +72,7 @@ router.post(
 
             const { name, description, category, price, stock } = req.body;
 
-            if (!name || !description || !category || !price || !stock) {
+            if (!name || !description || !category || price === undefined || price === '' || stock === undefined || stock === '') {
                 return res.redirect('/seller/products/new?error=Preencha todos os campos');
             }
 
