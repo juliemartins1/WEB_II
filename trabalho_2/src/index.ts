@@ -4,6 +4,7 @@ import productsController from './controller/ProductsController';
 import commentsController from './controller/CommentsController';
 import profilesRoutes from './routes/profiles';
 
+
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -19,6 +20,7 @@ import authRoutes from './routes/auth';
 import adminRoutes from './routes/admin';
 import dashboardRoutes from './routes/dashboard';
 import bcrypt from 'bcrypt';
+import path from 'path';
 
 const app = express();
 const port = Number(process.env.PORT || 3333);
@@ -28,6 +30,7 @@ app.set('views', './src/views');
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 app.use(session({
     secret: process.env.SESSION_SECRET || 'dev-secret',
