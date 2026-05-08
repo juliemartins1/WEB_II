@@ -2,12 +2,12 @@ import { Request, Response, NextFunction } from 'express';
 import * as AuditModel from '../models/AuditModel';
 import * as UserModel from '../models/UserModel';
 
-export function isAuthenticated(req: Request, res: Response, next: NextFunction) {
+export async function isAuthenticated(req: Request, res: Response, next: NextFunction) {
     if (!req.session.user) {
         return res.redirect('/login');
     }
 
-    const user = UserModel.findById(req.session.user.id);
+    const user = await UserModel.findById(req.session.user.id);
 
     if (!user || !user.ativo) {
         req.session.destroy(() => {
@@ -39,7 +39,9 @@ export function isTipoUsuario(...tipo_usuarios: string[]) {
 export function auditLog(resumo: string) {
     return (req: Request, res: Response, next: NextFunction) => {
         const userId = req.session.user?.id ?? null;
+
         AuditModel.log(userId, req.method, req.path, resumo);
+
         next();
     };
 }
