@@ -1,23 +1,52 @@
-import { Router } from 'express';
-import * as AdminController from '../controller/AdminController';
-import { isAuthenticated, isAdmin, auditLog } from '../middleware/auth';
+import { Router, Request, Response } from 'express';
+import prisma from '../config/prisma';
 
 const router = Router();
 
-router.use(isAuthenticated, isAdmin);
+router.get('/admin', async (req: Request, res: Response) => {
+    if (!req.session.user) {
+        return res.redirect('/login');
+    }
 
-router.get('/users', AdminController.listarUsuarios);
-router.get('/users/create', AdminController.exibirCriarUsuario);
-router.post(
-    '/users/create',
-    auditLog('Criação de usuário pelo admin'),
-    AdminController.criarUsuario
-);
-router.post(
-    '/users/:id/toggle',
-    auditLog('Alteração de status de usuário'),
-    AdminController.alternarStatusUsuario
-);
-router.get('/logs', AdminController.listarLogs);
+    if (req.session.user.tipo_usuario !== 'admin') {
+        return res.status(403).render('error', {
+            message: 'Acesso restrito.'
+        });
+    }
 
+    const users = await prisma.user.findMany({
+        orderBy: {
+            id: 'desc'
+        }
+    });
+
+    return res.render('admin-dashboard', {
+        user: req.session.user,
+        users
+    });
+});
+router.post('/admin/toggle-user/:id', async (req: Request, res: Response) => {
+    if (!req.session.user || req.session.user.tipo_usuario !== 'admin') {
+        return res.redirect('/login');
+    }
+
+    const userId = Number(req.params.id);
+
+    const user = await prisma.user.findUnique({
+        where: { id: userId }
+    });
+
+    if (!user || user.tipo_usuario === 'admin') {
+        return res.redirect('/admin');
+    }
+
+    await prisma.user.update({
+        where: { id: userId },
+        data: {
+            ativo: !user.ativo
+        }
+    });
+
+    return res.redirect('/admin');
+});
 export default router;

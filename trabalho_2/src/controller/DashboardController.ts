@@ -1,31 +1,23 @@
 import { Request, Response } from 'express';
+import prisma from '../config/prisma';
 
-export function listarDashboard(req: Request, res: Response) {
+export async function sellerDashboard(req: Request, res: Response) {
     if (!req.session.user) {
         return res.redirect('/login');
     }
 
-    const { tipo_usuario } = req.session.user;
+    const userId = req.session.user.id;
 
-    if (tipo_usuario === 'admin') {
-        return res.redirect('/admin/users');
-    }
-
-    if (tipo_usuario === 'vendedor') {
-        return res.redirect('/seller');
-    }
-
-    return res.redirect('/buyer');
-}
-
-export function dashboardVendedor(req: Request, res: Response) {
-    return res.render('seller-dashboard', {
-        user: req.session.user
+    const produtosAtivos = await prisma.product.count({
+        where: {
+            userId: userId
+        }
     });
-}
 
-export function dashboardComprador(req: Request, res: Response) {
-    return res.render('buyer-dashboard', {
-        user: req.session.user
+    return res.render('seller-dashboard', {
+        user: req.session.user,
+        produtosAtivos,
+        receita: 0,
+        pedidosPendentes: 0
     });
 }
