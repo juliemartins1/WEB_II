@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <title>MarketMVP | Painel administrativo</title>
+  <%- include('_head') %>
+</head>
+
+<body class="font-body bg-brand-50 text-brand-900">
+
+  <div class="min-h-screen grid-bg">
+
+    <!-- HEADER -->
+    <header class="border-b border-brand-200/80 bg-white/75 backdrop-blur">
+      <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+
+        <a href="/" class="font-display text-xl font-bold">
+          MarketMVP
+        </a>
+
+        <nav class="flex items-center gap-5 text-sm font-medium">
+
+          <a href="/" class="hover:text-accent-600">
+            Início
+          </a>
+
+          <a href="/seller" class="hover:text-accent-600">
+            Painel do vendedor
+          </a>
+
+          <a href="/orders" class="hover:text-accent-600">
+            Pedidos
+          </a>
+
+          <form method="POST" action="/logout">
+            <button type="submit" class="hover:text-accent-600">
+              Sair
+            </button>
+          </form>
+
+        </nav>
+      </div>
+    </header>
+
+    <!-- CONTEÚDO -->
+    <main class="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+
+      <!-- TOPO -->
+      <section class="rounded-3xl border border-brand-200 bg-white p-6 shadow-sm">
+
+        <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-wider text-brand-600">
+              Controle global da plataforma
+            </p>
+
+            <h1 class="mt-1 font-display text-4xl font-bold">
+              Painel administrativo
+            </h1>
+
+            <p class="mt-3 max-w-2xl text-sm text-brand-700">
+              Acompanhe contas cadastradas, identifique perfis com risco operacional e desative acessos quando
+              necessário.
+            </p>
+          </div>
+
+          <div class="rounded-2xl bg-brand-100 px-5 py-3 text-sm font-medium text-brand-700">
+            Administrador autenticado:
+            <span class="font-semibold">
+              <%= user.email %>
+            </span>
+          </div>
+
+        </div>
+
+        <!-- CARDS -->
+        <div class="mt-8 grid gap-4 sm:grid-cols-3">
+
+          <!-- TOTAL -->
+          <div class="rounded-2xl bg-brand-100 p-5">
+            <p class="text-xs font-semibold uppercase tracking-wider text-brand-600">
+              Contas totais
+            </p>
+
+            <p class="mt-2 font-display text-4xl font-bold">
+              <%= users.length %>
+            </p>
+          </div>
+
+          <!-- ATIVAS -->
+          <div class="rounded-2xl bg-brand-100 p-5">
+            <p class="text-xs font-semibold uppercase tracking-wider text-brand-600">
+              Contas ativas
+            </p>
+
+            <p class="mt-2 font-display text-4xl font-bold">
+              <%= users.filter(user=> user.ativo).length %>
+            </p>
+          </div>
+
+          <!-- DESATIVADAS -->
+          <div class="rounded-2xl bg-brand-100 p-5">
+            <p class="text-xs font-semibold uppercase tracking-wider text-brand-600">
+              Contas desativadas
+            </p>
+
+            <p class="mt-2 font-display text-4xl font-bold">
+              <%= users.filter(user=> !user.ativo).length %>
+            </p>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- TABELA -->
+      <section class="rounded-3xl border border-brand-200 bg-white p-6 shadow-sm">
+
+        <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+
+          <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          
+            <div>
+              <h2 class="font-display text-3xl font-bold">
+                Lista de contas
+              </h2>
+          
+              <p class="mt-2 text-sm text-brand-700">
+                Visualize compradores, vendedores e administradores em uma única visão operacional.
+              </p>
+            </div>
+          
+            <a href="/admin/users/new"
+              class="inline-flex items-center rounded-xl bg-accent-600 px-4 py-2 text-sm font-semibold text-black hover:bg-accent-700">
+              Cadastrar usuário
+            </a>
+          
+          </div>
+
+        <!-- TABELA -->
+        <div class="mt-6 overflow-x-auto">
+
+          <table class="min-w-full overflow-hidden rounded-2xl border border-brand-200">
+
+            <thead class="bg-brand-100 text-left text-sm font-semibold text-brand-700">
+
+              <tr>
+                <th class="px-4 py-3">Conta</th>
+                <th class="px-4 py-3">Perfil</th>
+                <th class="px-4 py-3">E-mail</th>
+                <th class="px-4 py-3">Status</th>
+                <th class="px-4 py-3">Ações</th>
+              </tr>
+
+            </thead>
+
+            <tbody class="bg-white text-sm">
+
+              <% users.forEach(user=> { %>
+
+                <tr class="border-t border-brand-200">
+
+                  <!-- NOME -->
+                  <td class="px-4 py-3 font-medium">
+                    <%= user.name %>
+                  </td>
+
+                  <!-- PERFIL -->
+                  <td class="px-4 py-3 capitalize">
+                    <%= user.tipo_usuario %>
+                  </td>
+
+                  <!-- EMAIL -->
+                  <td class="px-4 py-3">
+                    <%= user.email %>
+                  </td>
+
+                  <!-- STATUS -->
+                  <td class="px-4 py-3">
+
+                    <% if(user.ativo) { %>
+
+                      <span class="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
+                        Ativa
+                      </span>
+
+                      <% } else { %>
+
+                        <span class="rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">
+                          Desativada
+                        </span>
+
+                        <% } %>
+
+                  </td>
+
+                  <!-- AÇÕES -->
+                  <td class="px-4 py-3">
+
+                    <% if(user.tipo_usuario !=='admin' ) { %>
+
+                      <form method="POST" action="/admin/toggle-user/<%= user.id %>">
+
+                        <button type="submit"
+                          class="rounded-xl bg-red-500 px-4 py-2 text-xs font-semibold text-white hover:bg-red-600">
+                          <%= user.ativo ? 'Desativar conta' : 'Ativar conta' %>
+                        </button>
+
+                      </form>
+
+                      <% } else { %>
+
+                        <span class="text-xs text-brand-500">
+                          Protegido
+                        </span>
+
+                        <% } %>
+
+                  </td>
+
+                </tr>
+
+                <% }) %>
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </section>
+
+    </main>
+
+  </div>
+
+</body>
+
+</html>

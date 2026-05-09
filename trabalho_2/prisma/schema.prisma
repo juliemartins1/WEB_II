@@ -1,0 +1,155 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id                Int      @id @default(autoincrement())
+  name              String
+  email             String   @unique
+  password          String
+  tipo_usuario      String
+  ativo             Boolean  @default(true)
+  email_verificado  Boolean  @default(false)
+  createdAt         DateTime @default(now())
+
+  buyerProfile      BuyerProfile?
+  sellerProfile     SellerProfile?
+
+  products          Product[]
+  comments          Comment[]
+  commentLikes      CommentLike[]
+
+  buyerOrders       Order[] @relation("BuyerOrders")
+  sellerOrders      Order[] @relation("SellerOrders")
+
+  verificationCodes VerificationCode[]
+  auditLogs         AuditLog[]
+}
+
+model VerificationCode {
+  id        Int      @id @default(autoincrement())
+  code      String
+  expiraEm  DateTime
+  usado     Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model AuditLog {
+  id        Int      @id @default(autoincrement())
+  method    String
+  route     String
+  resumo    String
+  createdAt DateTime @default(now())
+
+  userId    Int?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+}
+
+model BuyerProfile {
+  id            Int      @id @default(autoincrement())
+  phone         String
+  address       String
+  city          String
+  state         String
+  zipCode       String
+  paymentMethod String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  userId        Int      @unique
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model SellerProfile {
+  id              Int      @id @default(autoincrement())
+  storeName       String
+  description     String
+  commercialPhone String
+  city            String
+  state           String
+  categories      String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  userId          Int      @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Product {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String
+  category    String
+  price       Float
+  stock       Int
+  imageUrl    String?
+  userId      Int
+  createdAt   DateTime @default(now())
+
+  user        User           @relation(fields: [userId], references: [id])
+  images      ProductImage[]
+  comments    Comment[]
+  orders Order[]
+}
+
+model ProductImage {
+  id        Int      @id @default(autoincrement())
+  imageUrl  String
+  isMain    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  productId Int
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  text      String
+  photoUrl  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  productId Int
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  userId    Int
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  likes     CommentLike[]
+}
+
+model CommentLike {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+
+  commentId Int
+  comment   Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  userId    Int
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([commentId, userId])
+}
+
+model Order {
+  id        Int      @id @default(autoincrement())
+  buyerId   Int
+  sellerId  Int
+  productId Int
+  quantity  Int      @default(1)
+  total     Float
+  status    String   @default("pendente")
+  createdAt DateTime @default(now())
+
+  buyer     User    @relation("BuyerOrders", fields: [buyerId], references: [id])
+  seller    User    @relation("SellerOrders", fields: [sellerId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
+}
