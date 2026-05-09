@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import prisma from '../config/prisma';
+import bcrypt from 'bcrypt';
 
 const router = Router();
 
@@ -25,6 +26,16 @@ router.get('/admin', async (req: Request, res: Response) => {
         users
     });
 });
+router.get('/admin/users/new', (req, res) => {
+    if (!req.session.user || req.session.user.tipo_usuario !== 'admin') {
+        return res.redirect('/login');
+    }
+
+    return res.render('create-user', {
+        user: req.session.user,
+        error: null
+    });
+});
 router.post('/admin/toggle-user/:id', async (req: Request, res: Response) => {
     if (!req.session.user || req.session.user.tipo_usuario !== 'admin') {
         return res.redirect('/login');
@@ -44,6 +55,47 @@ router.post('/admin/toggle-user/:id', async (req: Request, res: Response) => {
         where: { id: userId },
         data: {
             ativo: !user.ativo
+        }
+    });
+
+    return res.redirect('/admin');
+});
+
+router.post('/admin/users/create', async (req: Request, res: Response) => {
+    if (!req.session.user || req.session.user.tipo_usuario !== 'admin') {
+        return res.redirect('/login');
+    }
+
+    const { name, email, password, tipo_usuario } = req.body;
+
+    if (!name || !email || !password || !tipo_usuario) {
+        return res.render('create-user', {
+            user: req.session.user,
+            error: 'Preencha todos os campos.'
+        });
+    }
+
+    const userExists = await prisma.user.findUnique({
+        where: { email }
+    });
+
+    if (userExists) {
+        return res.render('create-user', {
+            user: req.session.user,
+            error: 'Este e-mail já está cadastrado.'
+        });
+    }
+
+    const hash = await bcrypt.hash(password, 10);
+
+    await prisma.user.create({
+        data: {
+            name,
+            email,
+            password: hash,
+            tipo_usuario,
+            ativo: true,
+            email_verificado: true
         }
     });
 
