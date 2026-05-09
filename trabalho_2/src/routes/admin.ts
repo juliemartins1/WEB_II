@@ -1,92 +1,93 @@
-import { Router, Request, Response, NextFunction } from 'express';
+import { Router, Request, Response } from 'express';
 import prisma from '../config/prisma';
 import bcrypt from 'bcrypt';
 
 const router = Router();
 
-function requireAdmin(req: Request, res: Response, next: NextFunction) {
+/* PAINEL ADMIN */
+router.get('/admin', async (req: Request, res: Response) => {
     if (!req.session.user) {
         return res.redirect('/login');
     }
 
     if (req.session.user.tipo_usuario !== 'admin') {
         return res.status(403).render('error', {
-            message: 'Acesso restrito ao administrador.'
+            message: 'Acesso restrito.'
         });
     }
 
-    return next();
-}
-
-router.get('/admin', requireAdmin, async (req: Request, res: Response) => {
     const users = await prisma.user.findMany({
-        orderBy: { id: 'desc' }
+        orderBy: {
+            id: 'desc'
+        }
     });
 
     return res.render('admin-dashboard', {
         user: req.session.user,
-        users
+        users,
+        error: req.query.error,
+        success: req.query.success
     });
 });
 
-router.get('/admin/users', requireAdmin, async (req: Request, res: Response) => {
-    const search = String(req.query.q || '').trim().toLowerCase();
+/* TELA CADASTRAR USUÁRIO */
+router.get('/admin/users/new', (req: Request, res: Response) => {
+    if (!req.session.user) {
+        return res.redirect('/login');
+    }
 
-    const users = await prisma.user.findMany({
-        orderBy: { createdAt: 'desc' }
-    });
+    if (req.session.user.tipo_usuario !== 'admin') {
+        return res.status(403).render('error', {
+            message: 'Acesso restrito.'
+        });
+    }
 
-    const filteredUsers = search
-        ? users.filter((user) =>
-            user.name.toLowerCase().includes(search) ||
-            user.email.toLowerCase().includes(search) ||
-            user.tipo_usuario.toLowerCase().includes(search)
-        )
-        : users;
-
-    return res.render('users', {
-        user: req.session.user,
-        users: filteredUsers,
-        search: req.query.q || ''
-    });
-});
-
-router.get(['/admin/users/new', '/admin/users/create'], requireAdmin, (req: Request, res: Response) => {
     return res.render('create-user', {
         user: req.session.user,
-        error: null,
-        sucesso: null
+        error: null
     });
 });
 
-router.post('/admin/users/create', requireAdmin, async (req: Request, res: Response) => {
+/* CRIAR USUÁRIO PELO ADMIN */
+router.post('/admin/users/create', async (req: Request, res: Response) => {
+    if (!req.session.user) {
+        return res.redirect('/login');
+    }
+
+    if (req.session.user.tipo_usuario !== 'admin') {
+        return res.status(403).render('error', {
+            message: 'Acesso restrito.'
+        });
+    }
+
     const { name, email, password, tipo_usuario } = req.body;
 
     if (!name || !email || !password || !tipo_usuario) {
         return res.render('create-user', {
             user: req.session.user,
-            error: 'Preencha todos os campos.',
-            sucesso: null
+            error: 'Preencha todos os campos.'
         });
     }
 
-    if (!['admin', 'comprador', 'vendedor'].includes(tipo_usuario)) {
+    const tiposValidos = ['admin', 'comprador', 'vendedor'];
+
+    if (!tiposValidos.includes(tipo_usuario)) {
         return res.render('create-user', {
             user: req.session.user,
-            error: 'Perfil inválido.',
-            sucesso: null
+            error: 'Tipo de usuário inválido.'
         });
     }
 
     const userExists = await prisma.user.findUnique({
-        where: { email }
+        where: {
+            email
+        }
     });
 
     if (userExists) {
         return res.render('create-user', {
             user: req.session.user,
-            error: 'Este e-mail já está cadastrado.',
-            sucesso: null
+            error: 'Este e-mail já está cadastrado.'
         });
     }
 
@@ -103,43 +104,58 @@ router.post('/admin/users/create', requireAdmin, async (req: Request, res: Respo
         }
     });
 
-    return res.redirect('/admin');
+    return res.redirect('/admin?success=Usuário criado com sucesso');
 });
 
-async function toggleUser(req: Request, res: Response) {
+/* ATIVAR OU DESATIVAR USUÁRIO */
+router.post('/admin/toggle-user/:id', async (req: Request, res: Response) => {
+    if (!req.session.user) {
+        return res.redirect('/login');
+    }
+
+    if (req.session.user.tipo_usuario !== 'admin') {
+        return res.status(403).render('error', {
+            message: 'Acesso restrito.'
+        });
+    }
+
     const userId = Number(req.params.id);
 
     if (Number.isNaN(userId)) {
-        return res.redirect('/admin');
+        return res.redirect('/admin?error=Usuário inválido');
     }
 
-    const user = await prisma.user.findUnique({ where: { id: userId } });
+    /*
+      Regra:
+      - Admin pode desativar comprador.
+      - Admin pode desativar vendedor.
+      - Admin pode desativar outro admin.
+      - Admin NÃO pode desativar a própria conta.
+    */
+    if (userId === req.session.user.id) {
+        return res.redirect('/admin?error=Você não pode desativar sua própria conta');
+    }
 
-    if (!user || user.tipo_usuario === 'admin' || user.id === req.session.user?.id) {
-        return res.redirect('/admin');
+    const account = await prisma.user.findUnique({
+        where: {
+            id: userId
+        }
+    });
+
+    if (!account) {
+        return res.redirect('/admin?error=Usuário não encontrado');
     }
 
     await prisma.user.update({
-        where: { id: userId },
-        data: { ativo: !user.ativo }
+        where: {
+            id: userId
+        },
+        data: {
+            ativo: !account.ativo
+        }
     });
 
-    return res.redirect(req.get('referer') || '/admin');
-}
-
-router.post('/admin/toggle-user/:id', requireAdmin, toggleUser);
-router.post('/admin/users/:id/toggle', requireAdmin, toggleUser);
-
-router.get('/admin/logs', requireAdmin, async (req: Request, res: Response) => {
-    const logs = await prisma.auditLog.findMany({
-        include: { user: true },
-        orderBy: { createdAt: 'desc' }
-    });
-
-    return res.render('logs', {
-        user: req.session.user,
-        logs
-    });
+    return res.redirect('/admin?success=Status da conta atualizado com sucesso');
 });
 
 export default router;

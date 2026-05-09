@@ -20,20 +20,16 @@
 
         <nav class="flex items-center gap-5 text-sm font-medium">
 
-          <a href="/" class="hover:text-accent-600">
+          <a href="/" class="hover:text-black">
             Início
           </a>
 
-          <a href="/seller" class="hover:text-accent-600">
-            Painel do vendedor
-          </a>
-
-          <a href="/orders" class="hover:text-accent-600">
-            Pedidos
+          <a href="/marketplace" class="hover:text-black">
+            Marketplace
           </a>
 
           <form method="POST" action="/logout">
-            <button type="submit" class="hover:text-accent-600">
+            <button type="submit" class="hover:text-black">
               Sair
             </button>
           </form>
@@ -60,8 +56,7 @@
             </h1>
 
             <p class="mt-3 max-w-2xl text-sm text-brand-700">
-              Acompanhe contas cadastradas, identifique perfis com risco operacional e desative acessos quando
-              necessário.
+              Acompanhe contas cadastradas, crie usuários e ative ou desative acessos quando necessário.
             </p>
           </div>
 
@@ -74,43 +69,55 @@
 
         </div>
 
-        <!-- CARDS -->
-        <div class="mt-8 grid gap-4 sm:grid-cols-3">
-
-          <!-- TOTAL -->
-          <div class="rounded-2xl bg-brand-100 p-5">
-            <p class="text-xs font-semibold uppercase tracking-wider text-brand-600">
-              Contas totais
-            </p>
-
-            <p class="mt-2 font-display text-4xl font-bold">
-              <%= users.length %>
-            </p>
+        <% if (typeof success !=='undefined' && success) { %>
+          <div class="mt-6 rounded-2xl bg-emerald-100 p-4 text-sm font-semibold text-emerald-700">
+            <%= success %>
           </div>
+          <% } %>
 
-          <!-- ATIVAS -->
-          <div class="rounded-2xl bg-brand-100 p-5">
-            <p class="text-xs font-semibold uppercase tracking-wider text-brand-600">
-              Contas ativas
-            </p>
+            <% if (typeof error !=='undefined' && error) { %>
+              <div class="mt-6 rounded-2xl bg-red-100 p-4 text-sm font-semibold text-red-700">
+                <%= error %>
+              </div>
+              <% } %>
 
-            <p class="mt-2 font-display text-4xl font-bold">
-              <%= users.filter(user=> user.ativo).length %>
-            </p>
-          </div>
+                <!-- CARDS -->
+                <div class="mt-8 grid gap-4 sm:grid-cols-3">
 
-          <!-- DESATIVADAS -->
-          <div class="rounded-2xl bg-brand-100 p-5">
-            <p class="text-xs font-semibold uppercase tracking-wider text-brand-600">
-              Contas desativadas
-            </p>
+                  <!-- TOTAL -->
+                  <div class="rounded-2xl bg-brand-100 p-5">
+                    <p class="text-xs font-semibold uppercase tracking-wider text-brand-600">
+                      Contas totais
+                    </p>
 
-            <p class="mt-2 font-display text-4xl font-bold">
-              <%= users.filter(user=> !user.ativo).length %>
-            </p>
-          </div>
+                    <p class="mt-2 font-display text-4xl font-bold">
+                      <%= users.length %>
+                    </p>
+                  </div>
 
-        </div>
+                  <!-- ATIVAS -->
+                  <div class="rounded-2xl bg-brand-100 p-5">
+                    <p class="text-xs font-semibold uppercase tracking-wider text-brand-600">
+                      Contas ativas
+                    </p>
+
+                    <p class="mt-2 font-display text-4xl font-bold">
+                      <%= users.filter(account=> account.ativo).length %>
+                    </p>
+                  </div>
+
+                  <!-- DESATIVADAS -->
+                  <div class="rounded-2xl bg-brand-100 p-5">
+                    <p class="text-xs font-semibold uppercase tracking-wider text-brand-600">
+                      Contas desativadas
+                    </p>
+
+                    <p class="mt-2 font-display text-4xl font-bold">
+                      <%= users.filter(account=> !account.ativo).length %>
+                    </p>
+                  </div>
+
+                </div>
 
       </section>
 
@@ -119,24 +126,22 @@
 
         <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
 
-          <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          
-            <div>
-              <h2 class="font-display text-3xl font-bold">
-                Lista de contas
-              </h2>
-          
-              <p class="mt-2 text-sm text-brand-700">
-                Visualize compradores, vendedores e administradores em uma única visão operacional.
-              </p>
-            </div>
-          
-            <a href="/admin/users/new"
-              class="inline-flex items-center rounded-xl bg-accent-600 px-4 py-2 text-sm font-semibold text-black hover:bg-accent-700">
-              Cadastrar usuário
-            </a>
-          
+          <div>
+            <h2 class="font-display text-3xl font-bold">
+              Lista de contas
+            </h2>
+
+            <p class="mt-2 text-sm text-brand-700">
+              Visualize compradores, vendedores e administradores em uma única visão operacional.
+            </p>
           </div>
+
+          <a href="/admin/users/new"
+            class="inline-flex items-center rounded-xl bg-black px-4 py-2 text-sm font-semibold text-white hover:bg-brand-800">
+            Cadastrar usuário
+          </a>
+
+        </div>
 
         <!-- TABELA -->
         <div class="mt-6 overflow-x-auto">
@@ -157,29 +162,35 @@
 
             <tbody class="bg-white text-sm">
 
-              <% users.forEach(user=> { %>
+              <% users.forEach(account=> { %>
 
                 <tr class="border-t border-brand-200">
 
                   <!-- NOME -->
                   <td class="px-4 py-3 font-medium">
-                    <%= user.name %>
+                    <%= account.name %>
+
+                      <% if (account.id===user.id) { %>
+                        <span class="ml-2 rounded-full bg-brand-100 px-2 py-1 text-xs font-semibold text-brand-600">
+                          Você
+                        </span>
+                        <% } %>
                   </td>
 
                   <!-- PERFIL -->
                   <td class="px-4 py-3 capitalize">
-                    <%= user.tipo_usuario %>
+                    <%= account.tipo_usuario %>
                   </td>
 
                   <!-- EMAIL -->
                   <td class="px-4 py-3">
-                    <%= user.email %>
+                    <%= account.email %>
                   </td>
 
                   <!-- STATUS -->
                   <td class="px-4 py-3">
 
-                    <% if(user.ativo) { %>
+                    <% if (account.ativo) { %>
 
                       <span class="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
                         Ativa
@@ -198,21 +209,21 @@
                   <!-- AÇÕES -->
                   <td class="px-4 py-3">
 
-                    <% if(user.tipo_usuario !=='admin' ) { %>
+                    <% if (account.id !==user.id) { %>
 
-                      <form method="POST" action="/admin/toggle-user/<%= user.id %>">
+                      <form method="POST" action="/admin/toggle-user/<%= account.id %>">
 
                         <button type="submit"
-                          class="rounded-xl bg-red-500 px-4 py-2 text-xs font-semibold text-white hover:bg-red-600">
-                          <%= user.ativo ? 'Desativar conta' : 'Ativar conta' %>
+                          class="rounded-xl bg-black px-4 py-2 text-xs font-semibold text-white hover:bg-brand-800">
+                          <%= account.ativo ? 'Desativar conta' : 'Ativar conta' %>
                         </button>
 
                       </form>
 
                       <% } else { %>
 
-                        <span class="text-xs text-brand-500">
-                          Protegido
+                        <span class="text-xs font-semibold text-brand-500">
+                          Sua própria conta
                         </span>
 
                         <% } %>
