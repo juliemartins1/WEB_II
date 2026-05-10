@@ -1,5 +1,6 @@
 import express from 'express';
 import session from 'express-session';
+import { requestLogger } from './middleware/requestLogger';
 import path from 'path';
 import dotenv from 'dotenv';
 import bcrypt from 'bcrypt';
@@ -37,6 +38,7 @@ app.use(session({
     cookie: { maxAge: 1000 * 60 * 60 * 8 },
 }));
 
+app.use(requestLogger);
 app.use('/', authRoutes);
 app.use('/admin', adminRoutes);
 app.use('/', dashboardRoutes);

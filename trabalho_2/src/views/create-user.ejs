@@ -59,14 +59,17 @@
                       class="w-full rounded-xl border border-brand-300 px-4 py-2.5 outline-none ring-coral-500 focus:ring" />
                   </label>
 
-                  <label class="block sm:col-span-1">
-                    <span class="mb-1 block text-sm font-medium">Perfil</span>
-                    <select name="tipo_usuario"
-                      class="w-full rounded-xl border border-brand-300 px-4 py-2.5 outline-none ring-coral-500 focus:ring">
-                      <option value="comprador">Comprador</option>
-                      <option value="vendedor">Vendedor</option>
-                      <option value="admin">Administrador</option>
-                    </select>
+                  <label class="block">
+                    <span class="mb-1 block text-sm font-medium">
+                      Tipo de usuário
+                    </span>
+                  
+                  <select name="tipo_usuario" required>
+                    <option value="">Selecione</option>
+                    <option value="comprador">Comprador</option>
+                    <option value="vendedor">Vendedor</option>
+                    <option value="admin">Administrador</option>
+                  </select>
                   </label>
 
                   <p class="sm:col-span-2 text-xs text-brand-500">

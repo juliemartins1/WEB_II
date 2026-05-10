@@ -12,8 +12,10 @@ router.post('/verify-email', auditLog('Verificação de e-mail'), AuthController
 router.post('/resend-code', auditLog('Reenvio de código de verificação'), AuthController.reenviarCodigo);
 
 router.get('/login', AuthController.exibirLogin);
-router.post('/login', auditLog('Tentativa de login'), AuthController.login);
-router.post('/logout', AuthController.logout);
 
+
+router.post('/login', AuthController.login);
+
+router.post('/logout', AuthController.logout);
 
 export default router;

@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import * as UserModel from '../models/UserModel';
+import * as AuditModel from '../models/AuditModel';
 import { enviarVerificacaoEmail } from '../config/mailer';
 
 export function exibirSignup(req: Request, res: Response) {
@@ -112,7 +113,7 @@ export async function reenviarCodigo(req: Request, res: Response) {
 
 export function exibirLogin(req: Request, res: Response) {
     if (req.session.user) {
-        return res.redirect('/dashboard');
+        return res.redirect('/');
     }
 
     return res.render('login', {
@@ -162,7 +163,21 @@ export async function login(req: Request, res: Response) {
         tipo_usuario: user.tipo_usuario
     };
 
-    return res.redirect('/dashboard');
+    await AuditModel.log(user.id, 'POST', '/login', 'Login realizado');
+    
+    if (user.tipo_usuario === 'admin') {
+        return res.redirect('/admin/users');
+    }
+
+    if (user.tipo_usuario === 'vendedor') {
+        return res.redirect('/seller/dashboard');
+    }
+
+    if (user.tipo_usuario === 'comprador') {
+        return res.redirect('/buyer/dashboard');
+    }
+
+    return res.redirect('/'); 
 }
 
 export function logout(req: Request, res: Response) {

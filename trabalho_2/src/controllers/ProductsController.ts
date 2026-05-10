@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import * as AuditModel from '../models/AuditModel';
 import prisma from '../config/prisma';
 import { fileUrl } from '../config/upload';
 
@@ -17,6 +18,7 @@ function isSeller(req: Request) {
 }
 
 class ProductController {
+
     static async index(req: Request, res: Response) {
         try {
             if (!isSeller(req)) {
@@ -26,9 +28,15 @@ class ProductController {
             const sellerId = Number(req.session.user!.id);
 
             const products = await prisma.product.findMany({
-                where: { userId: sellerId },
-                include: { images: true },
-                orderBy: { createdAt: 'desc' }
+                where: {
+                    userId: sellerId
+                },
+                include: {
+                    images: true
+                },
+                orderBy: {
+                    createdAt: 'desc'
+                }
             });
 
             return res.render('manage-products', {
@@ -37,9 +45,13 @@ class ProductController {
                 success: req.query.success,
                 error: req.query.error
             });
+
         } catch (error) {
             console.error('Erro ao listar produtos:', error);
-            return res.render('error', { message: 'Erro ao carregar produtos.' });
+
+            return res.render('error', {
+                message: 'Erro ao carregar produtos.'
+            });
         }
     }
 
@@ -61,10 +73,21 @@ class ProductController {
             }
 
             const sellerId = Number(req.session.user!.id);
-            const { name, description, category, price, stock } = req.body;
+
+            const {
+                name,
+                description,
+                category,
+                price,
+                stock
+            } = req.body;
+
             const files = req.files as Express.Multer.File[] | undefined;
 
-            const mainImage = files && files.length > 0 ? fileUrl(files[0]) : null;
+            const mainImage =
+                files && files.length > 0
+                    ? fileUrl(files[0])
+                    : null;
 
             const product = await prisma.product.create({
                 data: {
@@ -91,10 +114,23 @@ class ProductController {
                 }
             }
 
-            return res.redirect('/seller/products?success=Produto cadastrado com sucesso');
+            await AuditModel.log(
+                sellerId,
+                'POST',
+                '/seller/products',
+                `Produto criado: ${name}`
+            );
+
+            return res.redirect(
+                '/seller/products?success=Produto cadastrado com sucesso'
+            );
+
         } catch (error) {
             console.error('Erro ao cadastrar produto:', error);
-            return res.redirect('/seller/products?error=Erro ao cadastrar produto');
+
+            return res.redirect(
+                '/seller/products?error=Erro ao cadastrar produto'
+            );
         }
     }
 
@@ -112,7 +148,9 @@ class ProductController {
                     id: productId,
                     userId: sellerId
                 },
-                include: { images: true }
+                include: {
+                    images: true
+                }
             });
 
             if (!product) {
@@ -126,9 +164,13 @@ class ProductController {
                 categoriasValidas,
                 user: req.session.user
             });
+
         } catch (error) {
             console.error('Erro ao carregar produto:', error);
-            return res.render('error', { message: 'Erro ao carregar produto.' });
+
+            return res.render('error', {
+                message: 'Erro ao carregar produto.'
+            });
         }
     }
 
@@ -140,7 +182,15 @@ class ProductController {
 
             const productId = Number(req.params.id);
             const sellerId = Number(req.session.user!.id);
-            const { name, description, category, price, stock, isActive } = req.body;
+
+            const {
+                name,
+                description,
+                category,
+                price,
+                stock,
+                isActive
+            } = req.body;
 
             const product = await prisma.product.findFirst({
                 where: {
@@ -156,7 +206,9 @@ class ProductController {
             }
 
             await prisma.product.update({
-                where: { id: productId },
+                where: {
+                    id: productId
+                },
                 data: {
                     name,
                     description,
@@ -170,11 +222,15 @@ class ProductController {
             const files = req.files as Express.Multer.File[] | undefined;
 
             if (files && files.length > 0) {
+
                 await prisma.productImage.deleteMany({
-                    where: { productId }
+                    where: {
+                        productId
+                    }
                 });
 
                 for (let i = 0; i < files.length; i++) {
+
                     const imageUrl = fileUrl(files[i]);
 
                     await prisma.productImage.create({
@@ -187,17 +243,34 @@ class ProductController {
 
                     if (i === 0) {
                         await prisma.product.update({
-                            where: { id: productId },
-                            data: { imageUrl }
+                            where: {
+                                id: productId
+                            },
+                            data: {
+                                imageUrl
+                            }
                         });
                     }
                 }
             }
 
-            return res.redirect('/seller/products?success=Produto atualizado com sucesso');
+            await AuditModel.log(
+                sellerId,
+                'POST',
+                `/seller/products/${productId}/edit`,
+                `Produto editado: ${name}`
+            );
+
+            return res.redirect(
+                '/seller/products?success=Produto atualizado com sucesso'
+            );
+
         } catch (error) {
             console.error('Erro ao atualizar produto:', error);
-            return res.redirect('/seller/products?error=Erro ao atualizar produto');
+
+            return res.redirect(
+                '/seller/products?error=Erro ao atualizar produto'
+            );
         }
     }
 
@@ -218,22 +291,43 @@ class ProductController {
             });
 
             if (!product) {
-                return res.redirect('/seller/products?error=Produto não encontrado');
+                return res.redirect(
+                    '/seller/products?error=Produto não encontrado'
+                );
             }
 
             await prisma.product.update({
-                where: { id: productId },
-                data: { isActive: !product.isActive }
+                where: {
+                    id: productId
+                },
+                data: {
+                    active: !product.active
+                }
             });
 
-            const message = product.isActive
+            await AuditModel.log(
+                sellerId,
+                'POST',
+                `/seller/products/${productId}/toggle`,
+                product.active
+                    ? `Produto desativado: ${product.name}`
+                    : `Produto ativado: ${product.name}`
+            );
+
+            const message = product.active
                 ? 'Produto desativado com sucesso'
                 : 'Produto ativado com sucesso';
 
-            return res.redirect(`/seller/products?success=${encodeURIComponent(message)}`);
+            return res.redirect(
+                `/seller/products?success=${encodeURIComponent(message)}`
+            );
+
         } catch (error) {
             console.error('Erro ao alterar status do produto:', error);
-            return res.redirect('/seller/products?error=Erro ao alterar status do produto');
+
+            return res.redirect(
+                '/seller/products?error=Erro ao alterar status do produto'
+            );
         }
     }
 
@@ -259,19 +353,6 @@ class ProductController {
                 });
             }
 
-            const ordersCount = await prisma.order.count({
-                where: { productId }
-            });
-
-            if (ordersCount > 0) {
-                await prisma.product.update({
-                    where: { id: productId },
-                    data: { isActive: false }
-                });
-
-                return res.redirect('/seller/products?error=Este produto possui pedidos. Por segurança, ele foi apenas desativado.');
-            }
-
             await prisma.commentLike.deleteMany({
                 where: {
                     comment: {
@@ -281,21 +362,40 @@ class ProductController {
             });
 
             await prisma.comment.deleteMany({
-                where: { productId }
+                where: {
+                    productId
+                }
             });
 
             await prisma.productImage.deleteMany({
-                where: { productId }
+                where: {
+                    productId
+                }
             });
 
             await prisma.product.delete({
-                where: { id: productId }
+                where: {
+                    id: productId
+                }
             });
 
-            return res.redirect('/seller/products?success=Produto excluído com sucesso');
+            await AuditModel.log(
+                sellerId,
+                'POST',
+                `/seller/products/${productId}/delete`,
+                `Produto excluído: ${product.name}`
+            );
+
+            return res.redirect(
+                '/seller/products?success=Produto excluído com sucesso'
+            );
+
         } catch (error) {
             console.error('Erro ao excluir produto:', error);
-            return res.redirect('/seller/products?error=Erro ao excluir produto');
+
+            return res.redirect(
+                '/seller/products?error=Erro ao excluir produto'
+            );
         }
     }
 }

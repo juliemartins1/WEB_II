@@ -1,56 +1,117 @@
-<%- include('_head') %>
+<!doctype html>
+<html lang="pt-BR">
 
-  <main class="max-w-6xl mx-auto p-6">
+<head>
+  <title>Logs do sistema</title>
+  <%- include('_head') %>
+</head>
 
-    <h1 class="text-3xl font-bold mb-6">
-      Logs do sistema
-    </h1>
+<body class="bg-brand-50 text-brand-900 font-body">
 
-    <div class="overflow-x-auto rounded-2xl border border-brand-200 bg-white">
-      <table class="min-w-full text-left text-sm">
+  <div class="min-h-screen">
 
-        <thead class="bg-brand-100">
-          <tr>
-            <th class="px-4 py-3">Usuário</th>
-            <th class="px-4 py-3">Ação</th>
-            <th class="px-4 py-3">Data</th>
-          </tr>
-        </thead>
+    <header class="border-b border-brand-200 bg-white">
+      <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
 
-        <tbody>
-          <% if (!logs || logs.length===0) { %>
+        <a href="/" class="font-display text-2xl font-bold">
+          MarketMVP
+        </a>
 
+        <nav class="flex items-center gap-5 text-sm font-medium">
+
+          <a href="/admin/users" class="hover:text-accent-600">
+            Usuários
+          </a>
+
+          <a href="/admin/logs" class="text-accent-600 font-semibold">
+            Logs
+          </a>
+
+          <form method="POST" action="/logout">
+            <button type="submit" class="hover:text-accent-600">
+              Sair
+            </button>
+          </form>
+
+        </nav>
+
+      </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto p-6">
+
+      <div class="mb-6">
+        <h1 class="text-3xl font-bold">
+          Logs do sistema
+        </h1>
+
+        <p class="text-sm text-brand-600 mt-1">
+          Histórico de ações realizadas no sistema.
+        </p>
+      </div>
+
+      <div class="overflow-x-auto rounded-2xl border border-brand-200 bg-white shadow-sm">
+
+        <table class="min-w-full text-left text-sm">
+
+          <thead class="bg-brand-100 text-brand-800">
             <tr>
-              <td colspan="3" class="px-4 py-6 text-center">
-                Nenhum log encontrado.
-              </td>
+              <th class="px-4 py-3 font-semibold">
+                Usuário
+              </th>
+
+              <th class="px-4 py-3 font-semibold">
+                Ação
+              </th>
+
+              <th class="px-4 py-3 font-semibold">
+                Data
+              </th>
             </tr>
+          </thead>
 
-            <% } %>
+          <tbody class="divide-y divide-brand-200">
 
-              <% logs.forEach(log=> { %>
+            <% if (!logs || logs.length===0) { %>
 
-                <tr class="border-t">
+              <tr>
+                <td colspan="3" class="px-4 py-6 text-center text-brand-600">
+                  Nenhum log encontrado.
+                </td>
+              </tr>
 
-                  <td class="px-4 py-3">
-                    <%= log.user ? log.user.name : 'Sistema' %>
-                  </td>
+              <% } %>
 
-                  <td class="px-4 py-3">
-                    <%= log.action %>
-                  </td>
+                <% logs.forEach(log=> { %>
 
-                  <td class="px-4 py-3">
-                    <%= new Date(log.createdAt).toLocaleString('pt-BR') %>
-                  </td>
+                  <tr class="hover:bg-brand-50">
 
-                </tr>
+                    <td class="px-4 py-3 font-medium">
+                      <%= log.user?.name || 'Sistema' %>
+                    </td>
 
-                <% }) %>
+                    <td class="px-4 py-3">
+                      <%= log.action %>
+                    </td>
 
-        </tbody>
+                    <td class="px-4 py-3 text-brand-700">
+                      <%= new Date(log.createdAt).toLocaleString( 'pt-BR' , { timeZone: 'America/Sao_Paulo' } ) %>
+                    </td>
 
-      </table>
-    </div>
+                  </tr>
 
-  </main>
+                  <% }) %>
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </main>
+
+  </div>
+
+</body>
+
+</html>

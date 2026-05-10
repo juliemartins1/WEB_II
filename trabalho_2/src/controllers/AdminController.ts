@@ -74,6 +74,12 @@ export async function criarUsuario(req: Request, res: Response) {
     const userId = await UserModel.criar(name, email, password, tipo_usuario);
     const code = await UserModel.criarCodigoVerificacao(userId);
 
+    await AuditModel.log(
+        req.session.user!.id,
+        'POST',
+        '/admin/users/new',
+        `Administrador criou usuário: ${email} (${tipo_usuario})`
+    );
     try {
         await enviarVerificacaoEmail(email, code);
     } catch {
@@ -85,7 +91,9 @@ export async function criarUsuario(req: Request, res: Response) {
         sucesso: `Usuário ${email} criado com sucesso. Um código de verificação foi enviado por e-mail.`,
         user: req.session.user
     });
+    
 }
+
 
 export async function listarLogs(req: Request, res: Response) {
     const logs = await AuditModel.listAll();

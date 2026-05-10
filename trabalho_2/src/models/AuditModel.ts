@@ -13,3 +13,11 @@ export async function log(
         }
     });
 }
+
+export async function listAll() {
+    return prisma.auditLog.findMany({
+        orderBy: { createdAt: 'desc' },
+        include: { user: true }
+    });
+}
+
