@@ -18,13 +18,22 @@ Projeto em Node.js + Express + TypeScript + Prisma + SQLite.
 - Regra no banco para impedir curtida duplicada do mesmo usuário no mesmo comentário.
 - Usuários não autenticados podem visualizar produtos, mas não podem comentar nem curtir.
 
+
+## Perfis do sistema
+
+- Admin
+- Comprador
+- Vendedor
 ## Instalação
 
-bash
+## Instalação
+
+```bash
 npm install
 npx prisma generate
 npx prisma db push
 npm run dev
+```
 
 
 Acesse:
