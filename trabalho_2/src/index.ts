@@ -13,6 +13,9 @@ import productsController from './controller/ProductsController';
 import commentsController from './controller/CommentsController';
 import profilesRoutes from './routes/profiles';
 import ordersController from './controller/OrderController';
+import productsRoutes from './routes/products';
+
+
 
 dotenv.config();
 
@@ -56,11 +59,15 @@ app.use(
     })
 );
 
+app.get('/', (req, res) => {
+    res.redirect('/marketplace');
+});
+
 app.use('/', authRoutes);
 app.use('/', adminRoutes);
 app.use('/', dashboardRoutes);
 app.use('/', commentsController);
-app.use('/', productsController);
+app.use('/', productsRoutes);
 app.use('/', profilesRoutes);
 app.use('/', ordersController);
 

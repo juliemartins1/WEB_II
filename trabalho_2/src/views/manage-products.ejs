@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <title>Gerenciar Produtos</title>
+
+    <%- include('_head') %>
+</head>
+
+<body class="bg-gray-100">
+
+    <main class="max-w-6xl mx-auto px-4 py-8">
+
+        <div class="flex justify-between items-center mb-6">
+
+            <h1 class="text-3xl font-bold">
+                Meus Produtos
+            </h1>
+
+            <a href="/seller/products/new" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                Novo Produto
+            </a>
+
+        </div>
+
+        <% if(products.length===0){ %>
+
+            <div class="bg-white p-6 rounded shadow">
+                Nenhum produto cadastrado.
+            </div>
+
+            <% } %>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                    <% products.forEach(product=> { %>
+
+                        <div class="bg-white rounded shadow p-4">
+
+                            <% if(product.imageUrl){ %>
+
+                                <img src="<%= product.imageUrl %>" class="w-full h-48 object-cover rounded mb-4">
+
+                                <% } %>
+
+                                    <h2 class="text-xl font-bold mb-2">
+                                        <%= product.name %>
+                                    </h2>
+
+                                    <p class="text-gray-600 mb-2">
+                                        <%= product.category %>
+                                    </p>
+
+                                    <p class="text-green-600 font-bold mb-4">
+                                        R$ <%= product.price %>
+                                    </p>
+
+                                    <div class="flex gap-2">
+
+                                        <a href="/seller/products/<%= product.id %>/edit"
+                                            class="bg-yellow-500 text-white px-3 py-2 rounded hover:bg-yellow-600">
+                                            Editar
+                                        </a>
+
+                                        <form action="/seller/products/<%= product.id %>/delete" method="POST">
+
+                                            <button type="submit"
+                                                onclick="return confirm('Deseja excluir este produto?')"
+                                                class="bg-red-600 text-white px-3 py-2 rounded hover:bg-red-700">
+                                                Excluir
+                                            </button>
+
+                                        </form>
+
+                                    </div>
+
+                        </div>
+
+                        <% }) %>
+
+                </div>
+
+    </main>
+
+</body>
+
+</html>

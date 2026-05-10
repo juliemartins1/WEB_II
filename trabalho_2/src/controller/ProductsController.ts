@@ -1,8 +1,6 @@
-import { Router, Request, Response } from 'express';
+import { Request, Response } from 'express';
 import prisma from '../config/prisma';
-import { productImagesUpload, fileUrl } from '../config/upload';
-
-const router = Router();
+import { fileUrl } from '../config/upload';
 
 const categoriasValidas = [
     'Eletrônicos',
@@ -14,197 +12,264 @@ const categoriasValidas = [
     'Outros'
 ];
 
-/* LISTAR PRODUTOS */
-router.get(['/', '/marketplace'], async (req: Request, res: Response) => {
-    const products = await prisma.product.findMany({
-        include: {
-            user: {
-                include: {
-                    sellerProfile: true
-                }
-            },
-            images: true
-        },
-        orderBy: {
-            createdAt: 'desc'
-        }
-    });
+class ProductController {
 
-    return res.render('index', {
-        products,
-        user: req.session.user
-    });
-});
+    /* LISTAR PRODUTOS DO VENDEDOR */
+    static async index(req: Request, res: Response) {
 
-/* FORMULÁRIO DE NOVO PRODUTO */
-router.get('/seller/products/new', async (req: Request, res: Response) => {
-    if (!req.session.user) {
-        return res.redirect('/login');
-    }
-
-    if (req.session.user.tipo_usuario !== 'vendedor') {
-        return res.render('error', {
-            message: 'Apenas vendedores podem cadastrar produtos.'
-        });
-    }
-
-    return res.render('product-form', {
-        user: req.session.user,
-        error: req.query.error
-    });
-});
-
-/* CRIAR PRODUTO */
-router.post(
-    '/seller/products',
-    productImagesUpload.array('images', 5),
-    async (req: Request, res: Response) => {
         try {
+
             if (!req.session.user) {
                 return res.redirect('/login');
             }
 
-            if (req.session.user.tipo_usuario !== 'vendedor') {
-                return res.render('error', {
-                    message: 'Apenas vendedores podem cadastrar produtos.'
-                });
-            }
-
-            const { name, description, category, price, stock } = req.body;
-
-            if (!name || !description || !category || price === undefined || price === '' || stock === undefined || stock === '') {
-                return res.redirect('/seller/products/new?error=Preencha todos os campos');
-            }
-
-            if (!categoriasValidas.includes(category)) {
-                return res.redirect('/seller/products/new?error=Categoria inválida');
-            }
-
             const sellerId = Number(req.session.user.id);
 
-            const seller = await prisma.user.findUnique({
+            const products = await prisma.product.findMany({
                 where: {
-                    id: sellerId
+                    userId: sellerId
+                },
+                include: {
+                    images: true
+                },
+                orderBy: {
+                    createdAt: 'desc'
                 }
             });
 
-            if (!seller) {
-                req.session.destroy(() => { });
+            return res.render('manage-products', {
+                products,
+                user: req.session.user,
+                success: req.query.success,
+                error: req.query.error
+            });
+
+        } catch (error) {
+
+            console.error(error);
+
+            return res.render('error', {
+                message: 'Erro ao carregar produtos.'
+            });
+
+        }
+
+    }
+
+    /* FORMULÁRIO DE EDIÇÃO */
+    static async editForm(req: Request, res: Response) {
+
+        try {
+
+            if (!req.session.user) {
                 return res.redirect('/login');
             }
 
-            const priceNumber = Number(String(price).replace(',', '.'));
-            const stockNumber = Number(stock);
+            const productId = Number(req.params.id);
 
-            if (Number.isNaN(priceNumber) || priceNumber <= 0) {
-                return res.redirect('/seller/products/new?error=Preço inválido');
+            const product = await prisma.product.findUnique({
+                where: {
+                    id: productId
+                },
+                include: {
+                    images: true
+                }
+            });
+
+            if (!product) {
+                return res.render('error', {
+                    message: 'Produto não encontrado.'
+                });
             }
 
-            if (Number.isNaN(stockNumber) || stockNumber < 0) {
-                return res.redirect('/seller/products/new?error=Estoque inválido');
+            return res.render('edit-product', {
+                product,
+                categoriasValidas,
+                user: req.session.user
+            });
+
+        } catch (error) {
+
+            console.error(error);
+
+            return res.render('error', {
+                message: 'Erro ao carregar produto.'
+            });
+
+        }
+
+    }
+
+    /* ATUALIZAR PRODUTO */
+    static async update(req: Request, res: Response) {
+
+        try {
+
+            if (!req.session.user) {
+                return res.redirect('/login');
             }
 
-            const product = await prisma.product.create({
+            const productId = Number(req.params.id);
+            const sellerId = Number(req.session.user.id);
+
+            const {
+                name,
+                description,
+                category,
+                price,
+                stock
+            } = req.body;
+
+            const product = await prisma.product.findFirst({
+                where: {
+                    id: productId,
+                    userId: sellerId
+                }
+            });
+
+            if (!product) {
+                return res.render('error', {
+                    message: 'Produto não encontrado ou não pertence a este vendedor.'
+                });
+            }
+
+            await prisma.product.update({
+                where: {
+                    id: productId
+                },
                 data: {
                     name,
                     description,
                     category,
-                    price: priceNumber,
-                    stock: stockNumber,
-                    userId: sellerId
+                    price: Number(String(price).replace(',', '.')),
+                    stock: Number(stock)
                 }
             });
 
             const files = req.files as Express.Multer.File[] | undefined;
 
             if (files && files.length > 0) {
+
+                await prisma.productImage.deleteMany({
+                    where: {
+                        productId
+                    }
+                });
+
                 for (let i = 0; i < files.length; i++) {
+
                     const imageUrl = fileUrl(files[i]);
 
                     if (!imageUrl) continue;
 
                     await prisma.productImage.create({
                         data: {
-                            productId: product.id,
+                            productId,
                             imageUrl,
                             isMain: i === 0
                         }
                     });
 
                     if (i === 0) {
+
                         await prisma.product.update({
                             where: {
-                                id: product.id
+                                id: productId
                             },
                             data: {
                                 imageUrl
                             }
                         });
+
                     }
+
                 }
+
             }
 
-            return res.redirect('/seller?success=Produto criado com sucesso');
+            return res.redirect('/seller/products?success=Produto atualizado com sucesso');
+
         } catch (error) {
-            console.error('Erro ao criar produto:', error);
 
-            return res.redirect('/seller/products/new?error=Erro ao cadastrar produto');
+            console.error('Erro ao atualizar produto:', error);
+
+            return res.redirect('/seller/products?error=Erro ao atualizar produto');
+
         }
-    }
-);
 
-/* DETALHES DO PRODUTO */
-router.get('/products/:id', async (req: Request, res: Response) => {
-    const productId = Number(req.params.id);
-
-    if (Number.isNaN(productId)) {
-        return res.render('error', {
-            message: 'Produto inválido.'
-        });
     }
 
-    const product = await prisma.product.findUnique({
-        where: {
-            id: productId
-        },
-        include: {
-            user: {
-                include: {
-                    sellerProfile: true
-                }
-            },
-            images: {
-                orderBy: {
-                    isMain: 'desc'
-                }
-            },
-            comments: {
-                include: {
-                    user: true,
-                    likes: true
-                },
-                orderBy: {
-                    createdAt: 'desc'
-                }
+    /* EXCLUIR PRODUTO */
+    static async delete(req: Request, res: Response) {
+
+        try {
+
+            if (!req.session.user) {
+                return res.redirect('/login');
             }
-        }
-    });
 
-    if (!product) {
-        return res.render('error', {
-            message: 'Produto não encontrado.'
-        });
+            const productId = Number(req.params.id);
+            const sellerId = Number(req.session.user.id);
+
+            const product = await prisma.product.findFirst({
+                where: {
+                    id: productId,
+                    userId: sellerId
+                }
+            });
+
+            if (!product) {
+                return res.render('error', {
+                    message: 'Produto não encontrado ou não pertence a este vendedor.'
+                });
+            }
+
+            const comments = await prisma.comment.findMany({
+                where: {
+                    productId
+                }
+            });
+
+            for (const comment of comments) {
+
+                await prisma.commentLike.deleteMany({
+                    where: {
+                        commentId: comment.id
+                    }
+                });
+
+            }
+
+            await prisma.comment.deleteMany({
+                where: {
+                    productId
+                }
+            });
+
+            await prisma.productImage.deleteMany({
+                where: {
+                    productId
+                }
+            });
+
+            await prisma.product.delete({
+                where: {
+                    id: productId
+                }
+            });
+
+            return res.redirect('/seller/products?success=Produto excluído com sucesso');
+
+        } catch (error) {
+
+            console.error('Erro ao excluir produto:', error);
+
+            return res.redirect('/seller/products?error=Erro ao excluir produto');
+
+        }
+
     }
 
-    const totalLikes = product.comments.reduce((total, comment) => {
-        return total + comment.likes.length;
-    }, 0);
+}
 
-    return res.render('product-details', {
-        product,
-        totalLikes,
-        user: req.session.user
-    });
-});
-
-export default router;
+export default ProductController;
