@@ -5,3 +5,4 @@ dev.deb
 banco.db
 /src/generated/prisma
 dist
+.sixth
