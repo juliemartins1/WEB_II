@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import { sellerDashboard } from '../controller/DashboardController';
+import { sellerDashboard } from '../controllers/DashboardController';
 
 const router = Router();
 

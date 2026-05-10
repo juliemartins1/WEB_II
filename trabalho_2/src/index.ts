@@ -9,10 +9,10 @@ import prisma from './config/prisma';
 import authRoutes from './routes/auth';
 import adminRoutes from './routes/admin';
 import dashboardRoutes from './routes/dashboard';
-import productsController from './controller/ProductsController';
-import commentsController from './controller/CommentsController';
+import productsController from './controllers/ProductsController';
+import commentsController from './controllers/CommentsController';
 import profilesRoutes from './routes/profiles';
-import ordersController from './controller/OrderController';
+import ordersController from './controllers/OrderController';
 import productsRoutes from './routes/products';
 
 

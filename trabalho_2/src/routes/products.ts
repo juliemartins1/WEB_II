@@ -1,10 +1,14 @@
 import { Router } from 'express';
-import ProductController from '../controller/ProductsController';
+import ProductController from '../controllers/ProductsController';
 import { productImagesUpload } from '../config/upload';
 
 const router = Router();
 
 router.get('/seller/products', ProductController.index);
+router.get('/:id/edit', ProductsController.edit);
+router.post('/:id/edit', upload.array('images', 5), ProductsController.update);
+
+router.post('/:id/delete', ProductsController.delete);
 
 router.get('/seller/products/:id/edit', ProductController.editForm);
 
@@ -13,6 +17,7 @@ router.post(
     productImagesUpload.array('images', 5),
     ProductController.update
 );
+
 
 router.post('/seller/products/:id/delete', ProductController.delete);
 
