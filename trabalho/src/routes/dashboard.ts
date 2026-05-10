@@ -4,7 +4,7 @@ import {
     listarDashboard,
     dashboardComprador,
     dashboardVendedor
-} from '../controllers/DashboardController';
+} from '../controller/DashboardController';
 
 const router = Router();
 
