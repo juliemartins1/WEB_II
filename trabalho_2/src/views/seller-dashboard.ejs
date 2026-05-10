@@ -2,38 +2,26 @@
 <html lang="pt-BR">
 
 <head>
-  <title>MarketMVP | Painel do vendedor</title>
+  <title> Painel do vendedor</title>
   <%- include('_head') %>
 </head>
 
 <body class="font-body bg-brand-50 text-brand-900">
   <div class="min-h-screen grid-bg">
 
-    <header class="border-b border-brand-200/80 bg-white/75 backdrop-blur">
-      <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-        <a href="/" class="font-display text-xl font-bold">MarketMVP</a>
+       <main class="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
 
-        <nav class="flex items-center gap-5 text-sm font-medium">
-          <span class="text-brand-600">Olá, <%= user.name %></span>
+      <% if (success) { %>
+        <div class="rounded-xl bg-green-100 px-4 py-3 text-sm font-medium text-green-700">
+          <%= success %>
+        </div>
+      <% } %>
 
-          <a href="/profiles/seller" class="hover:text-accent-600">
-            Perfil da loja
-          </a>
-
-          <a href="/seller/products/new" class="hover:text-accent-600">
-            Novo produto
-          </a>
-
-          <form method="POST" action="/logout">
-            <button type="submit" class="hover:text-accent-600">
-              Sair
-            </button>
-          </form>
-        </nav>
-      </div>
-    </header>
-
-    <main class="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+      <% if (error) { %>
+        <div class="rounded-xl bg-red-100 px-4 py-3 text-sm font-medium text-red-700">
+          <%= error %>
+        </div>
+      <% } %>
 
       <section class="rounded-3xl border border-brand-200 bg-white p-6 shadow-sm">
         <p class="text-xs font-semibold uppercase tracking-wider text-brand-600">
@@ -49,89 +37,130 @@
         </p>
 
         <div class="mt-5 grid gap-3 sm:grid-cols-3">
-
-          <!-- RECEITA -->
           <div class="rounded-2xl bg-brand-100 p-4">
-            <p class="text-xs font-semibold uppercase tracking-wider">
-              Receita
-            </p>
-
-            <p class="mt-2 font-display text-3xl font-bold">
-              R$ <%= Number(receita).toFixed(2) %>
-            </p>
+            <p class="text-xs font-semibold uppercase tracking-wider">Produtos cadastrados</p>
+            <p class="mt-2 font-display text-3xl font-bold"><%= products.length %></p>
           </div>
 
-          <!-- PEDIDOS -->
           <div class="rounded-2xl bg-brand-100 p-4">
-            <p class="text-xs font-semibold uppercase tracking-wider">
-              Pedidos pendentes
-            </p>
-
-            <p class="mt-2 font-display text-3xl font-bold">
-              <%= pedidosPendentes %>
-            </p>
+            <p class="text-xs font-semibold uppercase tracking-wider">Produtos ativos</p>
+            <p class="mt-2 font-display text-3xl font-bold"><%= activeProducts %></p>
           </div>
 
-          <!-- PRODUTOS -->
           <div class="rounded-2xl bg-brand-100 p-4">
-            <p class="text-xs font-semibold uppercase tracking-wider">
-              Produtos ativos
-            </p>
-
+            <p class="text-xs font-semibold uppercase tracking-wider">Comentários recebidos</p>
             <p class="mt-2 font-display text-3xl font-bold">
-              <%= produtosAtivos %>
+              <%= products.reduce(function(total, product) { return total + product.comments.length }, 0) %>
             </p>
           </div>
-
         </div>
       </section>
 
-      <!-- AÇÕES -->
       <section class="rounded-3xl border border-brand-200 bg-white p-6 shadow-sm">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 class="font-display text-2xl font-bold">Meus produtos</h2>
+            <p class="mt-1 text-sm text-brand-700">Edite, exclua ou ative/desative os produtos da sua loja.</p>
+          </div>
 
-        <h2 class="font-display text-2xl font-bold">
-          Ações rápidas
-        </h2>
+          <a href="/seller/products/new" class="rounded-xl bg-accent-500 px-5 py-2.5 font-semibold text-black hover:bg-accent-600">
+            Cadastrar produto
+          </a>
+        </div>
+
+        <% if (!products || products.length === 0) { %>
+          <div class="mt-6 rounded-2xl border border-dashed border-brand-300 bg-brand-50 p-6 text-center">
+            <p class="font-semibold">Nenhum produto cadastrado ainda.</p>
+            <p class="mt-1 text-sm text-brand-700">Clique em “Cadastrar produto” para criar o primeiro item da loja.</p>
+          </div>
+        <% } else { %>
+          <div class="mt-6 overflow-hidden rounded-2xl border border-brand-200">
+            <table class="w-full text-left text-sm">
+              <thead class="bg-brand-100 text-xs uppercase tracking-wider text-brand-700">
+                <tr>
+                  <th class="px-4 py-3">Produto</th>
+                  <th class="px-4 py-3">Categoria</th>
+                  <th class="px-4 py-3">Preço</th>
+                  <th class="px-4 py-3">Estoque</th>
+                  <th class="px-4 py-3">Status</th>
+                  <th class="px-4 py-3">Ações</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-brand-200 bg-white">
+                <% products.forEach(function(product) { %>
+                  <tr>
+                    <td class="px-4 py-3">
+                      <div class="flex items-center gap-3">
+                        <% if (product.imageUrl) { %>
+                          <img src="<%= product.imageUrl %>" alt="<%= product.name %>" class="h-12 w-12 rounded-xl object-cover">
+                        <% } else { %>
+                          <div class="h-12 w-12 rounded-xl bg-brand-100"></div>
+                        <% } %>
+                        <div>
+                          <p class="font-semibold"><%= product.name %></p>
+                          <a href="/products/<%= product.id %>" class="text-xs text-accent-700 hover:underline">Ver detalhes</a>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="px-4 py-3"><%= product.category %></td>
+                    <td class="px-4 py-3">R$ <%= Number(product.price).toFixed(2).replace('.', ',') %></td>
+                    <td class="px-4 py-3"><%= product.stock %></td>
+                    <td class="px-4 py-3">
+                      <% if (product.active) { %>
+                        <span class="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">Ativo</span>
+                      <% } else { %>
+                        <span class="rounded-full bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-700">Desativado</span>
+                      <% } %>
+                    </td>
+                    <td class="px-4 py-3">
+                      <div class="flex flex-wrap gap-2">
+                        <a href="/seller/products/<%= product.id %>/edit"
+                          class="rounded-lg border border-brand-300 px-3 py-1.5 text-xs font-semibold hover:bg-brand-100">
+                          Editar
+                        </a>
+
+                        <form method="POST" action="/seller/products/<%= product.id %>/toggle">
+                          <button type="submit"
+                            class="rounded-lg border border-brand-300 px-3 py-1.5 text-xs font-semibold hover:bg-brand-100">
+                            <%= product.active ? 'Desativar' : 'Ativar' %>
+                          </button>
+                        </form>
+
+                        <form method="POST" action="/seller/products/<%= product.id %>/delete"
+                          onsubmit="return confirm('Tem certeza que deseja excluir este produto?')">
+                          <button type="submit"
+                            class="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-700">
+                            Excluir
+                          </button>
+                        </form>
+                      </div>
+                    </td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        <% } %>
+      </section>
+
+      <section class="rounded-3xl border border-brand-200 bg-white p-6 shadow-sm">
+        <h2 class="font-display text-2xl font-bold">Ações rápidas</h2>
 
         <div class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-
-          <!-- NOVO PRODUTO -->
           <a href="/seller/products/new" class="rounded-2xl border border-brand-200 bg-brand-50 p-4 hover:bg-brand-100">
-            <h3 class="font-semibold">
-              Cadastrar produto
-            </h3>
-
-            <p class="text-sm text-brand-700">
-              Adicione novos produtos à loja
-            </p>
+            <h3 class="font-semibold">Cadastrar produto</h3>
+            <p class="text-sm text-brand-700">Adicione novos produtos à loja</p>
           </a>
 
-          <a href="/seller/products" class="hover:text-accent-600">
-            Gerenciar Produtos
-          </a>
-          
-          <!-- PERFIL -->
           <a href="/profiles/seller" class="rounded-2xl border border-brand-200 bg-brand-50 p-4 hover:bg-brand-100">
-            <h3 class="font-semibold">
-              Perfil da loja
-            </h3>
-
-            <p class="text-sm text-brand-700">
-              Atualize informações públicas
-            </p>
+            <h3 class="font-semibold">Perfil da loja</h3>
+            <p class="text-sm text-brand-700">Atualize informações públicas</p>
           </a>
 
-          <!-- MARKETPLACE -->
           <a href="/marketplace" class="rounded-2xl border border-brand-200 bg-brand-50 p-4 hover:bg-brand-100">
-            <h3 class="font-semibold">
-              Ver marketplace
-            </h3>
-
-            <p class="text-sm text-brand-700">
-              Visualizar produtos cadastrados
-            </p>
+            <h3 class="font-semibold">Ver marketplace</h3>
+            <p class="text-sm text-brand-700">Visualizar produtos cadastrados</p>
           </a>
-
         </div>
       </section>
 

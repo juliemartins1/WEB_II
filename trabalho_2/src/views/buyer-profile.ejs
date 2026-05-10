@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 
 <head>
-    <title>MarketMVP | Perfil do comprador</title>
+    <title> Perfil do comprador</title>
     <%- include('_head') %>
 </head>
 
@@ -73,38 +73,30 @@
                                     <label class="block sm:col-span-2">
                                         <span class="mb-1 block text-sm font-medium">Forma de pagamento
                                             preferencial</span>
-                                        <div>
-                                            <label class="mb-2 block text-sm font-semibold text-brand-700">
-                                                Forma de pagamento preferencial
-                                            </label>
-                                        
-                                            <select name="paymentMethod" required
-                                                class="w-full rounded-2xl border border-brand-200 p-3 outline-none focus:border-black">
-                                                <option value="">Selecione uma opção</option>
-                                        
-                                                <option value="Pix" <%=profile?.paymentMethod==='Pix' ? 'selected' : '' %>>
-                                                    Pix
-                                                </option>
-                                        
-                                                <option value="Cartão de crédito" <%=profile?.paymentMethod==='Cartão de crédito' ? 'selected' : '' %>>
-                                                    Cartão de crédito
-                                                </option>
-                                        
-                                                <option value="Cartão de débito" <%=profile?.paymentMethod==='Cartão de débito' ? 'selected' : '' %>>
-                                                    Cartão de débito
-                                                </option>
-                                        
-                                                <option value="Boleto" <%=profile?.paymentMethod==='Boleto' ? 'selected' : '' %>>
-                                                    Boleto
-                                                </option>
-                                        
-                                                <option value="Dinheiro" <%=profile?.paymentMethod==='Dinheiro' ? 'selected' : '' %>>
-                                                    Dinheiro
-                                                </option>
-                                            </select>
-                                        </div>
-                                    </label>
-
+                                    <select name="paymentPreference" class="w-full rounded-xl border border-brand-300 px-4 py-3" required>
+                                        <option value="">Selecione</option>
+                                    
+                                        <option value="Pix" <%=profile?.paymentPreference==='Pix' ? 'selected' : '' %>>
+                                            Pix
+                                        </option>
+                                    
+                                        <option value="Cartão de Crédito" <%=profile?.paymentPreference==='Cartão de Crédito' ? 'selected' : '' %>>
+                                            Cartão de Crédito
+                                        </option>
+                                    
+                                        <option value="Cartão de Débito" <%=profile?.paymentPreference==='Cartão de Débito' ? 'selected' : '' %>>
+                                            Cartão de Débito
+                                        </option>
+                                    
+                                        <option value="Boleto" <%=profile?.paymentPreference==='Boleto' ? 'selected' : '' %>>
+                                            Boleto
+                                        </option>
+                                    
+                                        <option value="Dinheiro" <%=profile?.paymentPreference==='Dinheiro' ? 'selected' : '' %>>
+                                            Dinheiro
+                                        </option>
+                                    </select>
+                                    
                                     <button
                                         class="sm:col-span-2 rounded-xl bg-accent-500 px-5 py-2.5 font-semibold text-black hover:bg-accent-600">
                                         Salvar perfil

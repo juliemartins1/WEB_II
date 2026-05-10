@@ -2,395 +2,188 @@
 <html lang="pt-BR">
 
 <head>
-  <title>
-    <%= product.name %> | MarketMVP
-  </title>
+  <title> Detalhes do produto</title>
   <%- include('_head') %>
 </head>
 
 <body class="font-body bg-brand-50 text-brand-900">
-
   <div class="min-h-screen grid-bg">
-
-    <!-- HEADER -->
-    <header class="border-b border-brand-200/80 bg-white/75 backdrop-blur">
-      <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-
-        <a href="/" class="font-display text-xl font-bold">
-          MarketMVP
-        </a>
-
-        <nav class="flex items-center gap-5 text-sm font-medium">
-
-          <a href="/marketplace" class="hover:text-black">
-            Marketplace
-          </a>
-
-          <% if (user) { %>
-
-            <a href="/dashboard" class="hover:text-black">
-              Painel
-            </a>
-
-            <span class="text-brand-600">
-              Olá, <%= user.name %>
-            </span>
-
-            <form method="POST" action="/logout">
-              <button type="submit" class="hover:text-black">
-                Sair
-              </button>
-            </form>
-
+      <main class="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+      <section class="grid gap-6 rounded-3xl border border-brand-200 bg-white p-6 shadow-sm md:grid-cols-2">
+        <div>
+          <% if (product.imageUrl) { %>
+            <img src="<%= product.imageUrl %>" class="h-80 w-full rounded-2xl object-cover border border-brand-200">
             <% } else { %>
-
-              <a href="/login" class="hover:text-black">
-                Entrar
-              </a>
-
+              <div class="flex h-80 items-center justify-center rounded-2xl bg-brand-100 text-brand-700">
+                Sem imagem principal
+              </div>
               <% } %>
 
-        </nav>
-      </div>
-    </header>
-
-    <!-- CONTEÚDO -->
-    <main class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-
-      <div class="grid gap-8 lg:grid-cols-2">
-
-        <!-- IMAGENS DO PRODUTO -->
-        <section class="space-y-4">
-
-          <div class="overflow-hidden rounded-3xl border border-brand-200 bg-white shadow-sm">
-
-            <% const mainImage=product.images && product.images.length> 0 ? product.images[0] : null; %>
-
-              <% if (mainImage) { %>
-
-                <img src="<%= mainImage.imageUrl %>" alt="<%= product.name %>" class="h-[500px] w-full object-cover">
-
-                <% } else if (product.imageUrl) { %>
-
-                  <img src="<%= product.imageUrl %>" alt="<%= product.name %>" class="h-[500px] w-full object-cover">
-
-                  <% } else { %>
-
-                    <div class="flex h-[500px] items-center justify-center bg-brand-100 text-brand-500">
-                      Sem imagem
-                    </div>
-
-                    <% } %>
-
-          </div>
-
-          <!-- GALERIA -->
-          <% if (product.images && product.images.length> 0) { %>
-
-            <div class="flex flex-wrap gap-3">
-
-              <% product.images.forEach(image=> { %>
-
-                <img src="<%= image.imageUrl %>" alt="<%= product.name %>"
-                  class="h-24 w-24 rounded-2xl border border-brand-200 object-cover">
-
-                <% }) %>
-
-            </div>
-
-            <% } %>
-
-        </section>
-
-        <!-- INFORMAÇÕES DO PRODUTO -->
-        <section class="space-y-6">
-
-          <div class="rounded-3xl border border-brand-200 bg-white p-6 shadow-sm">
-
-            <p class="text-sm font-semibold uppercase tracking-wider text-brand-600">
-              <%= product.category %>
-            </p>
-
-            <h1 class="mt-2 font-display text-4xl font-bold">
-              <%= product.name %>
-            </h1>
-
-            <p class="mt-4 text-brand-700">
-              <%= product.description %>
-            </p>
-
-            <div class="mt-6 space-y-3">
-
-              <div class="flex items-center justify-between">
-                <span class="text-brand-600">
-                  Preço
-                </span>
-
-                <span class="text-3xl font-bold text-black">
-                  R$ <%= Number(product.price).toFixed(2) %>
-                </span>
-              </div>
-
-              <div class="flex items-center justify-between">
-                <span class="text-brand-600">
-                  Estoque
-                </span>
-
-                <span class="font-semibold">
-                  <%= product.stock %>
-                </span>
-              </div>
-
-            </div>
-
-            <!-- BOTÃO COMPRAR -->
-            <div class="mt-6">
-
-              <% if (!user) { %>
-
-                <a href="/login"
-                  class="block w-full rounded-2xl bg-black px-5 py-3 text-center font-semibold text-white hover:bg-brand-800">
-                  Faça login para comprar
-                </a>
-
-                <% } else if (product.stock <=0) { %>
-
-                  <div class="rounded-2xl bg-red-100 p-4 text-sm font-semibold text-red-700">
-                    Produto sem estoque
-                  </div>
-
-                  <% } else if (user.tipo_usuario==='comprador' ) { %>
-
-                    <form method="POST" action="/orders/create">
-                      <input type="hidden" name="productId" value="<%= product.id %>">
-
-                      <button type="submit"
-                        class="w-full rounded-2xl bg-black px-5 py-3 font-semibold text-white hover:bg-brand-800">
-                        Comprar agora
-                      </button>
-                    </form>
-
-                    <% } else { %>
-
-                      <div class="rounded-2xl bg-brand-100 p-4 text-sm text-brand-700">
-                        Para comprar este produto, entre com uma conta de comprador.
-                      </div>
-
-                      <% } %>
-
-            </div>
-
-          </div>
-
-          <!-- VENDEDOR -->
-          <div class="rounded-3xl border border-brand-200 bg-white p-6 shadow-sm">
-
-            <h2 class="font-display text-2xl font-bold">
-              Informações do vendedor
-            </h2>
-
-            <div class="mt-4 space-y-2 text-sm">
-
-              <p>
-                <span class="font-semibold">Nome:</span>
-                <%= product.user.sellerProfile?.storeName || product.user.name %>
-              </p>
-
-              <p>
-                <span class="font-semibold">Cidade:</span>
-                <%= product.user.sellerProfile?.city || '-' %>
-              </p>
-
-              <p>
-                <span class="font-semibold">Estado:</span>
-                <%= product.user.sellerProfile?.state || '-' %>
-              </p>
-
-              <p>
-                <span class="font-semibold">Categorias:</span>
-                <%= product.user.sellerProfile?.categories || '-' %>
-              </p>
-
-              <p>
-                <a href="/sellers/<%= product.user.id %>" class="font-semibold text-black hover:underline">
-                  Ver perfil público do vendedor
-                </a>
-              </p>
-
-            </div>
-
-          </div>
-
-          <!-- TOTAL DE CURTIDAS -->
-          <div class="rounded-3xl border border-brand-200 bg-white p-6 shadow-sm">
-
-            <h2 class="font-display text-2xl font-bold">
-              Curtidas nos comentários
-            </h2>
-
-            <p class="mt-3 text-4xl font-bold text-black">
-              ❤️ <%= totalLikes %>
-            </p>
-
-          </div>
-
-        </section>
-
-      </div>
-
-      <!-- COMENTÁRIOS -->
-      <section class="mt-10 rounded-3xl border border-brand-200 bg-white p-6 shadow-sm">
-
-        <div class="flex items-center justify-between">
-
-          <h2 class="font-display text-3xl font-bold">
-            Comentários
-          </h2>
-
-          <span class="text-sm text-brand-600">
-            <%= product.comments.length %> comentário(s)
-          </span>
-
+                <div class="mt-4 grid grid-cols-3 gap-3">
+                  <% product.images.forEach(img=> { %>
+                    <img src="<%= img.imageUrl %>" class="h-28 w-full rounded-xl object-cover border border-brand-200">
+                    <% }) %>
+                </div>
         </div>
 
-        <!-- FORMULÁRIO DE COMENTÁRIO -->
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-wider text-brand-600">
+            <%= product.category %>
+          </p>
+
+          <h1 class="mt-1 font-display text-3xl font-bold">
+            <%= product.name %>
+          </h1>
+
+          <p class="mt-3 text-brand-700">
+            <%= product.description %>
+          </p>
+
+          <p class="mt-5 font-display text-4xl font-bold text-coral-600">
+            R$ <%= Number(product.price).toFixed(2).replace('.', ',' ) %>
+          </p>
+
+          <p class="mt-2 text-sm text-brand-700">
+            Estoque disponível: <strong>
+              <%= product.stock %>
+           <header class="border-b border-brand-200/80 bg-white/75 backdrop-blur">
+      <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
+        <a href="/" class="font-display text-xl font-bold">MarketMVP</a>
+        <nav class="flex items-center gap-5 text-sm font-medium">
+          </strong>
+          </p>
+
+          <div class="mt-6 rounded-2xl bg-brand-100 p-4">
+            <p class="text-xs font-semibold uppercase tracking-wider text-brand-600">Vendedor</p>
+
+            <h2 class="mt-1 font-display text-xl font-bold">
+              <%= product.user.sellerProfile?.storeName || product.user.name %>
+            </h2>
+
+            <% if (product.user.sellerProfile) { %>
+              <p class="mt-2 text-sm text-brand-700">
+                <%= product.user.sellerProfile.description %>
+              </p>
+
+              <p class="mt-2 text-sm text-brand-700">
+                <strong>Contato:</strong>
+                <%= product.user.sellerProfile.commercialPhone %>
+              </p>
+
+              <p class="text-sm text-brand-700">
+                <strong>Localização:</strong>
+                <%= product.user.sellerProfile.city %> - <%= product.user.sellerProfile.state %>
+              </p>
+
+              <p class="text-sm text-brand-700">
+                <strong>Categorias:</strong>
+                <%= product.user.sellerProfile.categories %>
+              </p>
+              <% } %>
+
+                <a href="/sellers/<%= product.user.id %>"
+                  class="mt-4 inline-block rounded-xl border border-brand-300 px-4 py-2 text-sm font-semibold hover:bg-brand-100">
+                  Ver perfil do vendedor
+                </a>
+          </div>
+        </div>
+      </section>
+
+      <section class="rounded-3xl border border-brand-200 bg-white p-6 shadow-sm">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-wider text-brand-600">Interações</p>
+            <h2 class="font-display text-2xl font-bold">Comentários</h2>
+            <p class="mt-1 text-sm text-brand-700">
+              Total de curtidas nos comentários: <strong>
+                <%= totalLikes %>
+              </strong>
+            </p>
+          </div>
+        </div>
+
         <% if (user) { %>
-
           <form method="POST" action="/products/<%= product.id %>/comments" enctype="multipart/form-data"
-            class="mt-6 space-y-4">
+            class="mt-5 space-y-3">
+            <textarea name="text" required placeholder="Escreva seu comentário"
+              class="w-full rounded-xl border border-brand-300 px-4 py-2.5 outline-none ring-accent-500 focus:ring"></textarea>
 
-            <div>
-              <label class="mb-2 block text-sm font-semibold text-brand-700">
-                Escreva seu comentário
-              </label>
+            <input type="file" name="commentPhoto"
+              class="w-full rounded-xl border border-brand-300 px-4 py-2.5 bg-white text-sm text-brand-700 outline-none hover:bg-brand-100 focus:ring-accent-500 focus:ring">
 
-              <textarea name="text" required rows="4" placeholder="Digite seu comentário sobre o produto..."
-                class="w-full rounded-2xl border border-brand-200 p-4 outline-none focus:border-black"></textarea>
-            </div>
-
-            <div>
-              <label class="mb-2 block text-sm font-semibold text-brand-700">
-                Foto opcional
-              </label>
-
-              <input type="file" name="photo" accept="image/*"
-                class="block w-full rounded-2xl border border-brand-200 p-3 text-sm">
-            </div>
-
-            <button type="submit" class="rounded-2xl bg-black px-6 py-3 font-semibold text-white hover:bg-brand-800">
-              Salvar comentário
+            <button class="rounded-xl bg-accent-500 px-5 py-2.5 font-semibold text-black hover:bg-accent-600">
+              Comentar
             </button>
-
           </form>
-
           <% } else { %>
-
-            <div class="mt-6 rounded-2xl bg-brand-100 p-4 text-sm text-brand-700">
-              Você precisa fazer login para comentar.
-            </div>
-
+            <p class="mt-4 rounded-xl bg-brand-100 px-4 py-3 text-sm text-brand-700">
+              Faça login para comentar e curtir.
+            </p>
             <% } %>
 
-              <!-- LISTA DE COMENTÁRIOS -->
-              <div class="mt-8 space-y-5">
-
+              <div class="mt-6 space-y-4">
                 <% if (product.comments.length===0) { %>
-
-                  <p class="text-sm text-brand-600">
-                    Nenhum comentário ainda.
-                  </p>
-
+                  <p class="text-sm text-brand-700">Nenhum comentário ainda.</p>
                   <% } %>
 
                     <% product.comments.forEach(comment=> { %>
-
-                      <div class="rounded-2xl border border-brand-200 p-5">
-
-                        <div class="flex items-start justify-between gap-4">
-
+                      <article class="rounded-2xl border border-brand-200 bg-brand-50 p-4">
+                        <div class="flex items-start justify-between gap-3">
                           <div>
                             <p class="font-semibold">
                               <%= comment.user.name %>
                             </p>
-
-                            <p class="text-xs text-brand-500">
+                            <p class="text-xs text-brand-600">
                               <%= new Date(comment.createdAt).toLocaleString('pt-BR') %>
                             </p>
                           </div>
 
-                          <div class="flex items-center gap-3">
-
-                            <span class="text-sm font-semibold text-black">
-                              ❤️ <%= comment.likes.length %>
-                            </span>
-
-                            <% if (user) { %>
-
-                              <form method="POST" action="/comments/<%= comment.id %>/like">
-                                <button type="submit"
-                                  class="rounded-xl bg-black px-3 py-2 text-xs font-semibold text-white hover:bg-brand-800">
-                                  Curtir / Remover
-                                </button>
-                              </form>
-
-                              <% } %>
-
-                          </div>
-
+                          <% if (user && (comment.userId===user.id || user.tipo_usuario==='admin' || user.tipo_usuario==='Admin' )) { %>
+                            <form method="POST" action="/comments/<%= comment.id %>/delete">
+                              <button
+                                class="rounded-lg bg-coral-500 px-3 py-1.5 text-xs font-semibold text-black hover:bg-coral-600">
+                                Excluir
+                              </button>
+                            </form>
+                            <% } %>
                         </div>
 
-                        <p class="mt-4 text-brand-700">
+                        <p class="mt-3 text-sm text-brand-800">
                           <%= comment.text %>
                         </p>
 
+                        <% if (user && comment.userId === user.id) { %>
+                          <form method="POST" action="/comments/<%= comment.id %>/edit" class="mt-3 flex gap-2">
+                            <input name="text" value="<%= comment.text %>" required class="flex-1 rounded-lg border border-brand-300 px-3 py-1.5 text-sm outline-none ring-accent-500 focus:ring">
+                            <button class="rounded-lg border border-brand-300 px-3 py-1.5 text-xs font-semibold hover:bg-brand-100">Editar</button>
+                          </form>
+                        <% } %>
+
                         <% if (comment.photoUrl) { %>
-
-                          <img src="<%= comment.photoUrl %>" alt="Foto do comentário"
-                            class="mt-4 max-h-72 rounded-2xl border border-brand-200 object-cover">
-
+                          <img src="<%= comment.photoUrl %>"
+                            class="mt-3 h-40 rounded-xl object-cover border border-brand-200">
                           <% } %>
 
-                            <!-- EDITAR COMENTÁRIO -->
-                            <% if (user && user.id===comment.userId) { %>
+                            <div class="mt-4 flex items-center gap-3">
+                              <span class="text-sm font-semibold">
+                                <%= comment.likes.length %> curtida(s)
+                              </span>
 
-                              <form method="POST" action="/comments/<%= comment.id %>/edit" class="mt-4 space-y-2">
-
-                                <textarea name="text" rows="2"
-                                  class="w-full rounded-xl border border-brand-200 p-3 text-sm outline-none focus:border-black"><%= comment.text %></textarea>
-
-                                <button type="submit"
-                                  class="rounded-xl bg-black px-4 py-2 text-xs font-semibold text-white hover:bg-brand-800">
-                                  Salvar edição
-                                </button>
-
-                              </form>
-
-                              <% } %>
-
-                                <!-- EXCLUIR COMENTÁRIO -->
-                                <% if (user && (user.id===comment.userId || user.tipo_usuario==='admin' )) { %>
-
-                                  <form method="POST" action="/comments/<%= comment.id %>/delete" class="mt-4">
-                                    <button type="submit"
-                                      class="rounded-xl bg-black px-4 py-2 text-xs font-semibold text-white hover:bg-brand-800">
-                                      Excluir comentário
-                                    </button>
-                                  </form>
-
-                                  <% } %>
-
-                      </div>
-
+                              <% if (user) { %>
+                                <form method="POST" action="/comments/<%= comment.id %>/like">
+                                  <button
+                                    class="rounded-lg border border-brand-300 px-3 py-1.5 text-sm font-semibold hover:bg-brand-100">
+                                    Curtir / Remover curtida
+                                  </button>
+                                </form>
+                                <% } %>
+                            </div>
+                      </article>
                       <% }) %>
-
               </div>
-
       </section>
-
     </main>
-
   </div>
-
 </body>
 
 </html>

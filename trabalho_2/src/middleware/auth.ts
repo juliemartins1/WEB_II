@@ -39,9 +39,7 @@ export function isTipoUsuario(...tipo_usuarios: string[]) {
 export function auditLog(resumo: string) {
     return (req: Request, res: Response, next: NextFunction) => {
         const userId = req.session.user?.id ?? null;
-
-        AuditModel.log(userId, req.method, req.path, resumo);
-
+        AuditModel.log(userId, req.method, req.path, resumo).catch(console.error);
         next();
     };
 }

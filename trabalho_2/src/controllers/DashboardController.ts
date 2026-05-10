@@ -16,7 +16,8 @@ export async function sellerDashboard(req: Request, res: Response) {
 
     const produtosAtivos = await prisma.product.count({
         where: {
-            userId: userId
+            userId: userId,
+            isActive: true
         }
     });
 

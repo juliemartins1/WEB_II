@@ -12,23 +12,22 @@ model User {
   name              String
   email             String   @unique
   password          String
-  tipo_usuario      String
+  cpf               String?  @unique
+  tipo_usuario      String   @default("comprador")
   ativo             Boolean  @default(true)
   email_verificado  Boolean  @default(false)
   createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
+  active Boolean @default(true)
+  lastLoginAt DateTime?
+  products          Product[]
   buyerProfile      BuyerProfile?
   sellerProfile     SellerProfile?
-
-  products          Product[]
   comments          Comment[]
   commentLikes      CommentLike[]
-
-  buyerOrders       Order[] @relation("BuyerOrders")
-  sellerOrders      Order[] @relation("SellerOrders")
-
   verificationCodes VerificationCode[]
-  auditLogs         AuditLog[]
+  auditLogs AuditLog[]
 }
 
 model VerificationCode {
@@ -41,16 +40,13 @@ model VerificationCode {
   userId    Int
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
-
 model AuditLog {
   id        Int      @id @default(autoincrement())
-  method    String
-  route     String
-  resumo    String
+  action    String
+  userId    Int?
   createdAt DateTime @default(now())
 
-  userId    Int?
-  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  user User? @relation(fields: [userId], references: [id])
 }
 
 model BuyerProfile {
@@ -89,15 +85,17 @@ model Product {
   description String
   category    String
   price       Float
-  stock       Int
+  stock       Int      @default(0)
   imageUrl    String?
-  userId      Int
+  active      Boolean  @default(true)
   createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  user        User           @relation(fields: [userId], references: [id])
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   images      ProductImage[]
   comments    Comment[]
-  orders Order[]
 }
 
 model ProductImage {
@@ -137,19 +135,4 @@ model CommentLike {
   user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([commentId, userId])
-}
-
-model Order {
-  id        Int      @id @default(autoincrement())
-  buyerId   Int
-  sellerId  Int
-  productId Int
-  quantity  Int      @default(1)
-  total     Float
-  status    String   @default("pendente")
-  createdAt DateTime @default(now())
-
-  buyer     User    @relation("BuyerOrders", fields: [buyerId], references: [id])
-  seller    User    @relation("SellerOrders", fields: [sellerId], references: [id])
-  product   Product @relation(fields: [productId], references: [id])
 }

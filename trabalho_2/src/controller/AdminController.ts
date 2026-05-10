@@ -1,0 +1,118 @@
+import { Request, Response } from 'express';
+import * as UserModel from '../models/UserModel';
+import * as AuditModel from '../models/AuditModel';
+
+import { enviarVerificacaoEmail } from '../config/mailer';
+import prisma from '../config/prisma';
+
+
+export async function logs(req: Request, res: Response) {
+    const logs = await prisma.auditLog.findMany({
+        include: {
+            user: true
+        },
+        orderBy: {
+            createdAt: 'desc'
+        }
+    });
+
+    return res.render('logs', {
+        user: req.session.user,
+        logs
+    });
+}
+
+export async function listarUsuarios(req: Request, res: Response) {
+    const search = (req.query.q as string) || '';
+    let users = await UserModel.listAll();
+
+    if (search) {
+        const q = search.toLowerCase();
+        users = users.filter(u =>
+            u.name.toLowerCase().includes(q) ||
+            u.email.toLowerCase().includes(q) ||
+            u.tipo_usuario.toLowerCase().includes(q)
+        );
+    }
+
+    res.render('users', { users, search, user: req.session.user });
+}
+export async function dashboard(req: Request, res: Response) {
+    const users = await prisma.user.findMany({
+        orderBy: { createdAt: 'desc' }
+    });
+
+    res.render('admin-dashboard', {
+        user: req.session.user,
+        users
+    });
+}
+export async function alternarStatusUsuario(req: Request, res: Response) {
+    const id = Number(req.params.id);
+    const target = await UserModel.findById(id);
+
+    if (!target) {
+        return res.redirect('/admin/users');
+    }
+
+  
+    if (id === req.session.user!.id) {
+        return res.redirect('/admin/users');
+    }
+
+    await UserModel.setAtivo(id, !target.ativo);
+    return res.redirect('/admin/users');
+}
+
+export function exibirCriarUsuario(req: Request, res: Response) {
+    res.render('create-user', {
+        error: null,
+        sucesso: null,
+        user: req.session.user
+    });
+}
+
+export async function criarUsuario(req: Request, res: Response) {
+    const { name, email, password, tipo_usuario } = req.body;
+
+    if (!name || !email || !password || !tipo_usuario) {
+        return res.render('create-user', {
+            error: 'Preencha todos os campos.',
+            sucesso: null,
+            user: req.session.user
+        });
+    }
+
+    if (!['admin', 'vendedor', 'comprador'].includes(tipo_usuario)) {
+        return res.render('create-user', {
+            error: 'Perfil inválido.',
+            sucesso: null,
+            user: req.session.user
+        });
+    }
+
+    if (await UserModel.findByEMail(email)) {
+        return res.render('create-user', {
+            error: 'Email já cadastrado.',
+            sucesso: null,
+            user: req.session.user
+        });
+    }
+
+    const userId = await UserModel.criar(name, email, password, tipo_usuario);
+    const code = await UserModel.criarCodigoVerificacao(userId);
+
+    try {
+        await enviarVerificacaoEmail(email, code);
+    } catch {
+        console.log(`[DEV] Código de verificação para ${email}: ${code}`);
+    }
+
+    return res.render('create-user', {
+        error: null,
+        sucesso: `Usuário ${email} criado com sucesso. Um código de verificação foi enviado por e-mail.`,
+        user: req.session.user
+    });
+}
+
+

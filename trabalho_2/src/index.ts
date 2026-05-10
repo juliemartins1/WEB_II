@@ -1,35 +1,22 @@
 import express from 'express';
 import session from 'express-session';
+import path from 'path';
 import dotenv from 'dotenv';
 import bcrypt from 'bcrypt';
-import path from 'path';
-
 import prisma from './config/prisma';
-
 import authRoutes from './routes/auth';
 import adminRoutes from './routes/admin';
 import dashboardRoutes from './routes/dashboard';
-import productsController from './controllers/ProductsController';
-import commentsController from './controllers/CommentsController';
-import profilesRoutes from './routes/profiles';
-import ordersController from './controllers/OrderController';
 import productsRoutes from './routes/products';
-
-
+import commentsRoutes from './routes/comments';
+import profilesRoutes from './routes/profiles';
 
 dotenv.config();
 
 declare module 'express-session' {
     interface SessionData {
-        user?: {
-            id: number;
-            name: string;
-            tipo_usuario: string;
-        };
-        verificacaoPendente?: {
-            userId: number;
-            email: string;
-        };
+        user?: { id: number; name: string; tipo_usuario: string };
+        verificacaoPendente?: { userId: number; email: string };
     }
 }
 
@@ -37,48 +24,31 @@ const app = express();
 const port = Number(process.env.PORT || 3333);
 
 app.set('view engine', 'ejs');
-app.set('views', path.join(process.cwd(), 'src/views'));
+app.set('views', './src/views');
 
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+app.use(express.static('public'));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-app.use(express.static(path.join(process.cwd(), 'public')));
-
-// Arquivos enviados. Mantive as duas pastas para carregar imagens antigas e novas.
-app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
-app.use('/uploads', express.static(path.join(process.cwd(), 'src/uploads')));
-
-app.use(
-    session({
-        secret: process.env.SESSION_SECRET || 'dev-secret',
-        resave: false,
-        saveUninitialized: false,
-        cookie: {
-            maxAge: 1000 * 60 * 60 * 8
-        }
-    })
-);
-
-app.get('/', (req, res) => {
-    res.redirect('/marketplace');
-});
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'dev-secret',
+    resave: false,
+    saveUninitialized: false,
+    cookie: { maxAge: 1000 * 60 * 60 * 8 },
+}));
 
 app.use('/', authRoutes);
-app.use('/', adminRoutes);
+app.use('/admin', adminRoutes);
 app.use('/', dashboardRoutes);
-app.use('/', commentsController);
 app.use('/', productsRoutes);
+app.use('/', commentsRoutes);
 app.use('/', profilesRoutes);
-app.use('/', ordersController);
 
-async function createAdmin() {
-    const adminExists = await prisma.user.findFirst({
-        where: { tipo_usuario: 'admin' }
-    });
+async function seedAdmin() {
+    const adminExists = await prisma.user.findFirst({ where: { tipo_usuario: 'admin' } });
 
     if (!adminExists) {
-        const hash = await bcrypt.hash('admin123', 10);
-
+        const hash = bcrypt.hashSync('admin123', 10);
         await prisma.user.create({
             data: {
                 name: 'Administrador',
@@ -89,15 +59,12 @@ async function createAdmin() {
                 email_verificado: true
             }
         });
-
-        console.log('[ADMIN] admin@marketmvp.com / admin123');
+        console.log('[SEED] Admin criado: admin@marketmvp.com / admin123');
     }
 }
 
-createAdmin().catch((error) => {
-    console.error('Erro ao criar admin:', error);
-});
-
-app.listen(port, () => {
-    console.log(`Servidor rodando em http://localhost:${port}`);
+seedAdmin().then(() => {
+    app.listen(port, () => {
+        console.log(`Servidor rodando em http://localhost:${port}`);
+    });
 });

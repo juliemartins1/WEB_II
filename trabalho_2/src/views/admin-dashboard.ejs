@@ -2,250 +2,138 @@
 <html lang="pt-BR">
 
 <head>
-  <title>MarketMVP | Painel administrativo</title>
+  <title>Painel administrativo</title>
   <%- include('_head') %>
 </head>
 
 <body class="font-body bg-brand-50 text-brand-900">
+  <main class="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
 
-  <div class="min-h-screen grid-bg">
-
-    <!-- HEADER -->
-    <header class="border-b border-brand-200/80 bg-white/75 backdrop-blur">
-      <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-
-        <a href="/" class="font-display text-xl font-bold">
-          MarketMVP
-        </a>
-
-        <nav class="flex items-center gap-5 text-sm font-medium">
-
-          <a href="/" class="hover:text-black">
-            Início
-          </a>
-
-          <a href="/marketplace" class="hover:text-black">
-            Marketplace
-          </a>
-
-          <form method="POST" action="/logout">
-            <button type="submit" class="hover:text-black">
-              Sair
-            </button>
-          </form>
-
-        </nav>
-      </div>
-    </header>
-
-    <!-- CONTEÚDO -->
-    <main class="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
-
-      <!-- TOPO -->
-      <section class="rounded-3xl border border-brand-200 bg-white p-6 shadow-sm">
-
-        <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-
-          <div>
-            <p class="text-xs font-semibold uppercase tracking-wider text-brand-600">
-              Controle global da plataforma
-            </p>
-
-            <h1 class="mt-1 font-display text-4xl font-bold">
-              Painel administrativo
-            </h1>
-
-            <p class="mt-3 max-w-2xl text-sm text-brand-700">
-              Acompanhe contas cadastradas, crie usuários e ative ou desative acessos quando necessário.
-            </p>
-          </div>
-
-          <div class="rounded-2xl bg-brand-100 px-5 py-3 text-sm font-medium text-brand-700">
-            Administrador autenticado:
-            <span class="font-semibold">
-              <%= user.email %>
-            </span>
-          </div>
-
+    <section class="rounded-3xl border border-brand-200 bg-white p-6 shadow-sm">
+      <div class="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-wider text-brand-600">
+            Controle global da plataforma
+          </p>
+          <h1 class="mt-1 font-display text-3xl font-bold">Painel administrativo</h1>
+          <p class="mt-2 max-w-2xl text-sm text-brand-700">
+            Acompanhe contas cadastradas e desative acessos quando necessário.
+          </p>
         </div>
 
-        <% if (typeof success !=='undefined' && success) { %>
-          <div class="mt-6 rounded-2xl bg-emerald-100 p-4 text-sm font-semibold text-emerald-700">
-            <%= success %>
-          </div>
-          <% } %>
+        <div class="rounded-2xl bg-brand-100 px-4 py-3 text-sm font-semibold text-brand-800">
+          Administrador autenticado:
+          <%= user ? user.email || user.name : 'Administrador' %>
+        </div>
+      </div>
 
-            <% if (typeof error !=='undefined' && error) { %>
-              <div class="mt-6 rounded-2xl bg-red-100 p-4 text-sm font-semibold text-red-700">
-                <%= error %>
-              </div>
+      <div class="mt-5 grid gap-3 sm:grid-cols-3">
+        <div class="rounded-2xl bg-brand-100 p-4">
+          <p class="text-xs font-semibold uppercase tracking-wider">Contas totais</p>
+          <p class="mt-2 font-display text-3xl font-bold">
+            <%= users.length %>
+          </p>
+        </div>
+
+        <div class="rounded-2xl bg-brand-100 p-4">
+          <p class="text-xs font-semibold uppercase tracking-wider">Contas ativas</p>
+          <p class="mt-2 font-display text-3xl font-bold">
+            <%= users.filter(u=> u.active).length %>
+          </p>
+        </div>
+
+        <div class="rounded-2xl bg-brand-100 p-4">
+          <p class="text-xs font-semibold uppercase tracking-wider">Contas desativadas</p>
+          <p class="mt-2 font-display text-3xl font-bold">
+            <%= users.filter(u=> !u.active).length %>
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="rounded-3xl border border-brand-200 bg-white p-6 shadow-sm">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 class="font-display text-2xl font-bold">Lista de contas</h2>
+          <p class="mt-1 text-sm text-brand-700">
+            Visualize compradores, vendedores e administradores cadastrados pelo sistema.
+          </p>
+        </div>
+      </div>
+
+      <div class="mt-4 overflow-x-auto rounded-2xl border border-brand-200">
+        <table class="min-w-full text-left text-sm">
+          <thead class="bg-brand-100 text-brand-800">
+            <tr>
+              <th class="px-4 py-3 font-semibold">Conta</th>
+              <th class="px-4 py-3 font-semibold">Perfil</th>
+              <th class="px-4 py-3 font-semibold">E-mail</th>
+              <th class="px-4 py-3 font-semibold">Último acesso</th>
+              <th class="px-4 py-3 font-semibold">Status</th>
+              <th class="px-4 py-3 font-semibold">Ações</th>
+            </tr>
+          </thead>
+
+          <tbody class="divide-y divide-brand-200 bg-white">
+            <% if (!users || users.length===0) { %>
+              <tr>
+                <td colspan="6" class="px-4 py-6 text-center text-brand-600">
+                  Nenhuma conta cadastrada.
+                </td>
+              </tr>
               <% } %>
 
-                <!-- CARDS -->
-                <div class="mt-8 grid gap-4 sm:grid-cols-3">
+                <% users.forEach(account=> { %>
+                  <tr>
+                    <td class="px-4 py-3 font-semibold">
+                      <%= account.name %>
+                    </td>
 
-                  <!-- TOTAL -->
-                  <div class="rounded-2xl bg-brand-100 p-5">
-                    <p class="text-xs font-semibold uppercase tracking-wider text-brand-600">
-                      Contas totais
-                    </p>
+                    <td class="px-4 py-3">
+                      <%= account.tipo_usuario %>
+                    </td>
 
-                    <p class="mt-2 font-display text-4xl font-bold">
-                      <%= users.length %>
-                    </p>
-                  </div>
+                    <td class="px-4 py-3">
+                      <%= account.email %>
+                    </td>
 
-                  <!-- ATIVAS -->
-                  <div class="rounded-2xl bg-brand-100 p-5">
-                    <p class="text-xs font-semibold uppercase tracking-wider text-brand-600">
-                      Contas ativas
-                    </p>
+                    <td class="px-4 py-3">
+                      <%= account.lastLoginAt ? new Date(account.lastLoginAt).toLocaleString('pt-BR') : 'Nunca acessou'
+                        %>
+                    </td>
 
-                    <p class="mt-2 font-display text-4xl font-bold">
-                      <%= users.filter(account=> account.ativo).length %>
-                    </p>
-                  </div>
-
-                  <!-- DESATIVADAS -->
-                  <div class="rounded-2xl bg-brand-100 p-5">
-                    <p class="text-xs font-semibold uppercase tracking-wider text-brand-600">
-                      Contas desativadas
-                    </p>
-
-                    <p class="mt-2 font-display text-4xl font-bold">
-                      <%= users.filter(account=> !account.ativo).length %>
-                    </p>
-                  </div>
-
-                </div>
-
-      </section>
-
-      <!-- TABELA -->
-      <section class="rounded-3xl border border-brand-200 bg-white p-6 shadow-sm">
-
-        <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-
-          <div>
-            <h2 class="font-display text-3xl font-bold">
-              Lista de contas
-            </h2>
-
-            <p class="mt-2 text-sm text-brand-700">
-              Visualize compradores, vendedores e administradores em uma única visão operacional.
-            </p>
-          </div>
-
-          <a href="/admin/users/new"
-            class="inline-flex items-center rounded-xl bg-black px-4 py-2 text-sm font-semibold text-white hover:bg-brand-800">
-            Cadastrar usuário
-          </a>
-
-        </div>
-
-        <!-- TABELA -->
-        <div class="mt-6 overflow-x-auto">
-
-          <table class="min-w-full overflow-hidden rounded-2xl border border-brand-200">
-
-            <thead class="bg-brand-100 text-left text-sm font-semibold text-brand-700">
-
-              <tr>
-                <th class="px-4 py-3">Conta</th>
-                <th class="px-4 py-3">Perfil</th>
-                <th class="px-4 py-3">E-mail</th>
-                <th class="px-4 py-3">Status</th>
-                <th class="px-4 py-3">Ações</th>
-              </tr>
-
-            </thead>
-
-            <tbody class="bg-white text-sm">
-
-              <% users.forEach(account=> { %>
-
-                <tr class="border-t border-brand-200">
-
-                  <!-- NOME -->
-                  <td class="px-4 py-3 font-medium">
-                    <%= account.name %>
-
-                      <% if (account.id===user.id) { %>
-                        <span class="ml-2 rounded-full bg-brand-100 px-2 py-1 text-xs font-semibold text-brand-600">
-                          Você
+                    <td class="px-4 py-3">
+                      <% if (account.active) { %>
+                        <span class="rounded-full bg-accent-500/10 px-2 py-1 text-xs font-semibold text-accent-600">
+                          Ativa
                         </span>
-                        <% } %>
-                  </td>
+                        <% } else { %>
+                          <span class="rounded-full bg-brand-200 px-2 py-1 text-xs font-semibold text-brand-700">
+                            Desativada
+                          </span>
+                          <% } %>
+                    </td>
 
-                  <!-- PERFIL -->
-                  <td class="px-4 py-3 capitalize">
-                    <%= account.tipo_usuario %>
-                  </td>
+                    <td class="px-4 py-3">
+                      <% if (user && user.id !==account.id) { %>
+                        <form action="/admin/users/<%= account.id %>/toggle" method="POST">
+                          <button type="submit"
+                            class="<%= account.active ? 'rounded-lg bg-coral-500 px-3 py-1.5 font-semibold text-white hover:bg-coral-600' : 'rounded-lg border border-brand-300 px-3 py-1.5 font-semibold hover:bg-brand-100' %>">
+                            <%= account.active ? 'Desativar conta' : 'Reativar conta' %>
+                          </button>
+                        </form>
+                        <% } else { %>
+                          <span class="text-xs text-brand-500">Sua conta</span>
+                          <% } %>
+                    </td>
+                  </tr>
+                  <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </section>
 
-                  <!-- EMAIL -->
-                  <td class="px-4 py-3">
-                    <%= account.email %>
-                  </td>
-
-                  <!-- STATUS -->
-                  <td class="px-4 py-3">
-
-                    <% if (account.ativo) { %>
-
-                      <span class="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
-                        Ativa
-                      </span>
-
-                      <% } else { %>
-
-                        <span class="rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">
-                          Desativada
-                        </span>
-
-                        <% } %>
-
-                  </td>
-
-                  <!-- AÇÕES -->
-                  <td class="px-4 py-3">
-
-                    <% if (account.id !==user.id) { %>
-
-                      <form method="POST" action="/admin/toggle-user/<%= account.id %>">
-
-                        <button type="submit"
-                          class="rounded-xl bg-black px-4 py-2 text-xs font-semibold text-white hover:bg-brand-800">
-                          <%= account.ativo ? 'Desativar conta' : 'Ativar conta' %>
-                        </button>
-
-                      </form>
-
-                      <% } else { %>
-
-                        <span class="text-xs font-semibold text-brand-500">
-                          Sua própria conta
-                        </span>
-
-                        <% } %>
-
-                  </td>
-
-                </tr>
-
-                <% }) %>
-
-            </tbody>
-
-          </table>
-
-        </div>
-
-      </section>
-
-    </main>
-
-  </div>
-
+  </main>
 </body>
 
 </html>

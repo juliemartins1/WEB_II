@@ -1,3 +1,177 @@
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<script src="https://cdn.tailwindcss.com"></script>
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>
+        <%= typeof title !=='undefined' ? title : 'MarketMVP' %>
+    </title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#F8F7F2',
+                            100: '#F1EFE7',
+                            200: '#DDD8C4',
+                            300: '#C8BEA1',
+                            400: '#B4A47D',
+                            500: '#A0895A',
+                            600: '#7F6B44',
+                            700: '#5F5033',
+                            800: '#3F3522',
+                            900: '#251E10'
+                        },
+                        coral: {
+                            500: '#FF7A59',
+                            600: '#F25C37'
+                        }
+                    },
+                    fontFamily: {
+                        display: ['Space Grotesk', 'sans-serif'],
+                        body: ['Plus Jakarta Sans', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap"
+        rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #F8F7F2;
+            color: #251E10;
+        }
+
+        .grid-bg {
+            background-image:
+                linear-gradient(rgba(37, 30, 16, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(37, 30, 16, 0.03) 1px, transparent 1px);
+            background-size: 32px 32px;
+        }
+
+        .glass {
+            backdrop-filter: blur(12px);
+            background: rgba(255, 255, 255, 0.85);
+        }
+
+        .hover-scale {
+            transition: all .2s ease;
+        }
+
+        .hover-scale:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+
+<body class="grid-bg min-h-screen">
+
+    <header class="sticky top-0 z-50 border-b border-brand-200 bg-white/90 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+
+            <a href="/" class="flex items-center gap-3">
+                <div
+                    class="w-10 h-10 rounded-2xl bg-brand-900 text-white flex items-center justify-center font-bold text-lg shadow-md">
+                    M
+                </div>
+
+                <div>
+                    <h1 class="font-display text-2xl font-bold text-brand-900">
+                        MarketMVP
+                    </h1>
+
+                    <p class="text-xs text-brand-500 -mt-1">
+                        Marketplace Acadêmico
+                    </p>
+                </div>
+            </a>
+
+            <nav class="hidden md:flex items-center gap-6 text-sm font-medium">
+
+                <a href="/" class="text-brand-700 hover:text-coral-600 transition">
+                    Início
+                </a>
+
+                <a href="/categories" class="text-brand-700 hover:text-coral-600 transition">
+                    Categorias
+                </a>
+
+                <% if (typeof user !=='undefined' && user) { %>
+
+                    <% if (user.tipo_usuario==='comprador' ) { %>
+                        <a href="/profiles/buyer" class="text-brand-700 hover:text-coral-600 transition">
+                            Meu Perfil
+                        </a>
+                        <% } %>
+
+                            <% if (user.tipo_usuario==='vendedor' ) { %>
+                                <a href="/seller/dashboard" class="text-brand-700 hover:text-coral-600 transition">
+                                    Painel do Vendedor
+                                </a>
+                                <% } %>
+
+                                    <% if (user.tipo_usuario==='admin' || user.tipo_usuario==='Admin' ) { %>
+                                        <a href="/admin/users" class="hover:text-accent-600">
+                                            Administração
+                                        </a>
+                                        
+                                        <a href="/admin/logs" class="hover:text-accent-600">
+                                            Logs
+                                        </a>
+                                        <% } %>
+
+                                            <div class="flex items-center gap-3 pl-4 border-l border-brand-200">
+
+                                                <div class="text-right">
+                                                    <p class="text-sm font-semibold text-brand-900">
+                                                        <%= user.name %>
+                                                    </p>
+
+                                                    <p class="text-xs text-brand-500">
+                                                        <%= user.tipo_usuario %>
+                                                    </p>
+                                                </div>
+
+                                                <form action="/logout" method="POST" class="inline">
+                                                    <button type="submit" class="hover:text-accent-600">
+                                                        Sair
+                                                    </button>
+                                                </form>
+                                            </div>
+
+                                            <% } else { %>
+
+                                                <div class="flex items-center gap-3">
+
+                                                    <a href="/login"
+                                                        class="rounded-xl border border-brand-300 px-4 py-2 text-sm font-semibold text-brand-700 hover:bg-brand-100 transition">
+                                                        Entrar
+                                                    </a>
+
+                                                    <a href="/signup"
+                                                        class="rounded-xl bg-coral-600 px-4 py-2 text-sm font-semibold text-white hover:bg-coral-500 transition shadow-sm">
+                                                        Criar conta
+                                                    </a>
+
+                                                </div>
+
+                                                <% } %>
+
+            </nav>
+
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-6 py-8">

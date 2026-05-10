@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import * as AuthController from '../controllers/AuthController';
+import * as AuthController from '../controller/AuthController';
 import { auditLog, isAuthenticated } from '../middleware/auth';
 
 const router = Router();
@@ -13,12 +13,7 @@ router.post('/resend-code', auditLog('Reenvio de código de verificação'), Aut
 
 router.get('/login', AuthController.exibirLogin);
 router.post('/login', auditLog('Tentativa de login'), AuthController.login);
+router.post('/logout', AuthController.logout);
 
-router.post(
-    '/logout',
-    isAuthenticated,
-    auditLog('Logout'),
-    AuthController.logout
-);
 
 export default router;
