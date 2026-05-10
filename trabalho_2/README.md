@@ -20,36 +20,28 @@ Projeto em Node.js + Express + TypeScript + Prisma + SQLite.
 
 ## Instalação
 
-```bash
+bash
 npm install
 npx prisma generate
 npx prisma db push
 npm run dev
-```
+
 
 Acesse:
 
-```text
 http://localhost:3333
-```
 
 ## Usuário admin de teste
 
 O sistema cria automaticamente este usuário ao iniciar, se ainda não existir:
 
-```text
 Email: admin@marketmvp.com
 Senha: admin123
 Perfil: admin
-```
 
 ## Criar compradores e vendedores
 
 Use a tela de cadastro:
-
-```text
-/signup
-```
 
 Depois de cadastrar, informe o código de verificação. Em ambiente de desenvolvimento, caso o e-mail não seja enviado, o código aparece no terminal.
 
