@@ -21,15 +21,7 @@ function usuarioEhVendedor(req: Request) {
 function validarProduto(body: any) {
     const { name, description, category, price, stock } = body;
 
-    if (
-        !name ||
-        !description ||
-        !category ||
-        price === undefined ||
-        price === '' ||
-        stock === undefined ||
-        stock === ''
-    ) {
+    if (!name || !description || !category || price === undefined || price === '' || stock === undefined || stock === '') {
         return 'Preencha todos os campos obrigatórios.';
     }
 
@@ -51,23 +43,15 @@ function validarProduto(body: any) {
     return null;
 }
 
-/* HOME / MARKETPLACE */
+/* HOME */
 router.get(['/', '/marketplace'], async (req: Request, res: Response) => {
     const products = await prisma.product.findMany({
-        where: {
-            active: true
-        },
+        where: { active: true },
         include: {
-            user: {
-                include: {
-                    sellerProfile: true
-                }
-            },
+            user: { include: { sellerProfile: true } },
             images: true
         },
-        orderBy: {
-            createdAt: 'desc'
-        }
+        orderBy: { createdAt: 'desc' }
     });
 
     return res.render('index', {
@@ -76,11 +60,33 @@ router.get(['/', '/marketplace'], async (req: Request, res: Response) => {
     });
 });
 
+/* CATEGORIAS */
+router.get('/categories', async (req: Request, res: Response) => {
+    const categoriaSelecionada = req.query.category as string | undefined;
+
+    const products = await prisma.product.findMany({
+        where: {
+            active: true,
+            ...(categoriaSelecionada ? { category: categoriaSelecionada } : {})
+        },
+        include: {
+            user: { include: { sellerProfile: true } },
+            images: true
+        },
+        orderBy: { createdAt: 'desc' }
+    });
+
+    return res.render('categories', {
+        user: req.session.user,
+        products,
+        categorias: categoriasValidas,
+        categoriaSelecionada
+    });
+});
+
 /* FORMULÁRIO NOVO PRODUTO */
 router.get('/seller/products/new', async (req: Request, res: Response) => {
-    if (!req.session.user) {
-        return res.redirect('/login');
-    }
+    if (!req.session.user) return res.redirect('/login');
 
     if (!usuarioEhVendedor(req)) {
         return res.render('error', {
@@ -101,9 +107,7 @@ router.post(
     productImagesUpload.array('images', 5),
     async (req: Request, res: Response) => {
         try {
-            if (!req.session.user) {
-                return res.redirect('/login');
-            }
+            if (!req.session.user) return res.redirect('/login');
 
             if (!usuarioEhVendedor(req)) {
                 return res.render('error', {
@@ -114,27 +118,20 @@ router.post(
             const erroValidacao = validarProduto(req.body);
 
             if (erroValidacao) {
-                return res.redirect(
-                    `/seller/products/new?error=${encodeURIComponent(erroValidacao)}`
-                );
+                return res.redirect(`/seller/products/new?error=${encodeURIComponent(erroValidacao)}`);
             }
 
             const { name, description, category, price, stock } = req.body;
-
-            const sellerId = Number(req.session.user.id);
-
-            const priceNumber = Number(String(price).replace(',', '.'));
-            const stockNumber = Number(stock);
 
             const product = await prisma.product.create({
                 data: {
                     name,
                     description,
                     category,
-                    price: priceNumber,
-                    stock: stockNumber,
+                    price: Number(String(price).replace(',', '.')),
+                    stock: Number(stock),
                     active: true,
-                    userId: sellerId
+                    userId: Number(req.session.user.id)
                 }
             });
 
@@ -143,7 +140,6 @@ router.post(
             if (files && files.length > 0) {
                 for (let i = 0; i < files.length; i++) {
                     const imageUrl = fileUrl(files[i]);
-
                     if (!imageUrl) continue;
 
                     await prisma.productImage.create({
@@ -156,36 +152,24 @@ router.post(
 
                     if (i === 0) {
                         await prisma.product.update({
-                            where: {
-                                id: product.id
-                            },
-                            data: {
-                                imageUrl
-                            }
+                            where: { id: product.id },
+                            data: { imageUrl }
                         });
                     }
                 }
             }
 
-            return res.redirect(
-                '/seller/dashboard?success=Produto criado com sucesso'
-            );
-
+            return res.redirect('/seller/dashboard?success=Produto criado com sucesso');
         } catch (error) {
             console.error('Erro ao criar produto:', error);
-
-            return res.redirect(
-                '/seller/dashboard?error=Erro ao criar produto'
-            );
+            return res.redirect('/seller/dashboard?error=Erro ao criar produto');
         }
     }
 );
 
 /* FORMULÁRIO EDITAR PRODUTO */
 router.get('/seller/products/:id/edit', async (req: Request, res: Response) => {
-    if (!req.session.user) {
-        return res.redirect('/login');
-    }
+    if (!req.session.user) return res.redirect('/login');
 
     if (!usuarioEhVendedor(req)) {
         return res.render('error', {
@@ -196,26 +180,16 @@ router.get('/seller/products/:id/edit', async (req: Request, res: Response) => {
     const productId = Number(req.params.id);
     const sellerId = Number(req.session.user.id);
 
-    if (Number.isNaN(productId)) {
-        return res.redirect(
-            '/seller/dashboard?error=Produto inválido'
-        );
-    }
-
     const product = await prisma.product.findFirst({
         where: {
             id: productId,
             userId: sellerId
         },
-        include: {
-            images: true
-        }
+        include: { images: true }
     });
 
     if (!product) {
-        return res.redirect(
-            '/seller/dashboard?error=Produto não encontrado'
-        );
+        return res.redirect('/seller/dashboard?error=Produto não encontrado');
     }
 
     return res.render('product-form', {
@@ -231,9 +205,7 @@ router.post(
     productImagesUpload.array('images', 5),
     async (req: Request, res: Response) => {
         try {
-            if (!req.session.user) {
-                return res.redirect('/login');
-            }
+            if (!req.session.user) return res.redirect('/login');
 
             const productId = Number(req.params.id);
             const sellerId = Number(req.session.user.id);
@@ -243,40 +215,29 @@ router.post(
                     id: productId,
                     userId: sellerId
                 },
-                include: {
-                    images: true
-                }
+                include: { images: true }
             });
 
             if (!product) {
-                return res.redirect(
-                    '/seller/dashboard?error=Produto não encontrado'
-                );
+                return res.redirect('/seller/dashboard?error=Produto não encontrado');
             }
 
             const erroValidacao = validarProduto(req.body);
 
             if (erroValidacao) {
-                return res.redirect(
-                    `/seller/products/${productId}/edit?error=${encodeURIComponent(erroValidacao)}`
-                );
+                return res.redirect(`/seller/products/${productId}/edit?error=${encodeURIComponent(erroValidacao)}`);
             }
 
             const { name, description, category, price, stock } = req.body;
 
-            const priceNumber = Number(String(price).replace(',', '.'));
-            const stockNumber = Number(stock);
-
             await prisma.product.update({
-                where: {
-                    id: productId
-                },
+                where: { id: productId },
                 data: {
                     name,
                     description,
                     category,
-                    price: priceNumber,
-                    stock: stockNumber
+                    price: Number(String(price).replace(',', '.')),
+                    stock: Number(stock)
                 }
             });
 
@@ -285,38 +246,36 @@ router.post(
             if (files && files.length > 0) {
                 for (let i = 0; i < files.length; i++) {
                     const imageUrl = fileUrl(files[i]);
-
                     if (!imageUrl) continue;
 
                     await prisma.productImage.create({
                         data: {
                             productId,
                             imageUrl,
-                            isMain: i === 0
+                            isMain: product.images.length === 0 && i === 0
                         }
                     });
+
+                    if (product.images.length === 0 && i === 0) {
+                        await prisma.product.update({
+                            where: { id: productId },
+                            data: { imageUrl }
+                        });
+                    }
                 }
             }
 
-            return res.redirect(
-                '/seller/dashboard?success=Produto atualizado com sucesso'
-            );
-
+            return res.redirect('/seller/dashboard?success=Produto atualizado com sucesso');
         } catch (error) {
             console.error(error);
-
-            return res.redirect(
-                '/seller/dashboard?error=Erro ao atualizar produto'
-            );
+            return res.redirect('/seller/dashboard?error=Erro ao atualizar produto');
         }
     }
 );
 
 /* ATIVAR / DESATIVAR */
 router.post('/seller/products/:id/toggle', async (req: Request, res: Response) => {
-    if (!req.session.user) {
-        return res.redirect('/login');
-    }
+    if (!req.session.user) return res.redirect('/login');
 
     const productId = Number(req.params.id);
     const sellerId = Number(req.session.user.id);
@@ -329,30 +288,20 @@ router.post('/seller/products/:id/toggle', async (req: Request, res: Response) =
     });
 
     if (!product) {
-        return res.redirect(
-            '/seller/dashboard?error=Produto não encontrado'
-        );
+        return res.redirect('/seller/dashboard?error=Produto não encontrado');
     }
 
     await prisma.product.update({
-        where: {
-            id: productId
-        },
-        data: {
-            active: !product.active
-        }
+        where: { id: productId },
+        data: { active: !product.active }
     });
 
-    return res.redirect(
-        '/seller/dashboard?success=Status atualizado'
-    );
+    return res.redirect('/seller/dashboard?success=Status atualizado');
 });
 
 /* EXCLUIR PRODUTO */
 router.post('/seller/products/:id/delete', async (req: Request, res: Response) => {
-    if (!req.session.user) {
-        return res.redirect('/login');
-    }
+    if (!req.session.user) return res.redirect('/login');
 
     const productId = Number(req.params.id);
     const sellerId = Number(req.session.user.id);
@@ -365,20 +314,14 @@ router.post('/seller/products/:id/delete', async (req: Request, res: Response) =
     });
 
     if (!product) {
-        return res.redirect(
-            '/seller/dashboard?error=Produto não encontrado'
-        );
+        return res.redirect('/seller/dashboard?error=Produto não encontrado');
     }
 
     await prisma.product.delete({
-        where: {
-            id: productId
-        }
+        where: { id: productId }
     });
 
-    return res.redirect(
-        '/seller/dashboard?success=Produto excluído com sucesso'
-    );
+    return res.redirect('/seller/dashboard?success=Produto excluído com sucesso');
 });
 
 /* DETALHES DO PRODUTO */
@@ -386,24 +329,16 @@ router.get('/products/:id', async (req: Request, res: Response) => {
     const productId = Number(req.params.id);
 
     const product = await prisma.product.findUnique({
-        where: {
-            id: productId
-        },
+        where: { id: productId },
         include: {
-            user: {
-                include: {
-                    sellerProfile: true
-                }
-            },
+            user: { include: { sellerProfile: true } },
             images: true,
             comments: {
                 include: {
                     user: true,
                     likes: true
                 },
-                orderBy: {
-                    createdAt: 'desc'
-                }
+                orderBy: { createdAt: 'desc' }
             }
         }
     });
