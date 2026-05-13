@@ -2,17 +2,17 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 
-/* garante que a pasta existe */
+
 function ensureDir(dir: string) {
     if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
     }
 }
 
-/* pasta base */
+
 const uploadRoot = path.resolve(__dirname, '..', 'uploads');
 
-/* storage */
+
 const storage = multer.diskStorage({
     destination: function (_req, file, cb) {
         let folder = 'products';
@@ -34,7 +34,7 @@ const storage = multer.diskStorage({
     }
 });
 
-/* filtro de imagem */
+
 function fileFilter(
     _req: Express.Request,
     file: Express.Multer.File,
@@ -49,21 +49,21 @@ function fileFilter(
     cb(null, true);
 }
 
-/* upload de produtos (múltiplas fotos) */
+
 export const productImagesUpload = multer({
     storage,
     fileFilter,
     limits: { fileSize: 2 * 1024 * 1024 }
 });
 
-/* upload de comentários */
+
 export const commentPhotoUpload = multer({
     storage,
     fileFilter,
     limits: { fileSize: 2 * 1024 * 1024 }
 });
 
-/* gerar URL do arquivo */
+
 export function fileUrl(file?: Express.Multer.File) {
     if (!file) return null;
 

@@ -43,7 +43,7 @@ function validarProduto(body: any) {
     return null;
 }
 
-/* HOME */
+
 router.get(['/', '/marketplace'], async (req: Request, res: Response) => {
     const products = await prisma.product.findMany({
         where: { active: true },
@@ -60,7 +60,7 @@ router.get(['/', '/marketplace'], async (req: Request, res: Response) => {
     });
 });
 
-/* CATEGORIAS */
+
 router.get('/categories', async (req: Request, res: Response) => {
     const categoriaSelecionada = req.query.category as string | undefined;
 
@@ -84,7 +84,6 @@ router.get('/categories', async (req: Request, res: Response) => {
     });
 });
 
-/* FORMULÁRIO NOVO PRODUTO */
 router.get('/seller/products/new', async (req: Request, res: Response) => {
     if (!req.session.user) return res.redirect('/login');
 
@@ -101,7 +100,7 @@ router.get('/seller/products/new', async (req: Request, res: Response) => {
     });
 });
 
-/* CRIAR PRODUTO */
+
 router.post(
     '/seller/products',
     productImagesUpload.array('images', 5),
@@ -167,7 +166,7 @@ router.post(
     }
 );
 
-/* FORMULÁRIO EDITAR PRODUTO */
+
 router.get('/seller/products/:id/edit', async (req: Request, res: Response) => {
     if (!req.session.user) return res.redirect('/login');
 
@@ -199,7 +198,7 @@ router.get('/seller/products/:id/edit', async (req: Request, res: Response) => {
     });
 });
 
-/* ATUALIZAR PRODUTO */
+
 router.post(
     '/seller/products/:id/edit',
     productImagesUpload.array('images', 5),

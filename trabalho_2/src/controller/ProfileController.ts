@@ -7,7 +7,7 @@ function isLogged(req: Request) {
     return !!req.session.user;
 }
 
-/* TELA PERFIL COMPRADOR */
+
 router.get('/profiles/buyer', async (req: Request, res: Response) => {
     if (!isLogged(req)) return res.redirect('/login');
 
@@ -31,7 +31,7 @@ router.get('/profiles/buyer', async (req: Request, res: Response) => {
     });
 });
 
-/* SALVAR PERFIL COMPRADOR */
+
 router.post('/profiles/buyer', async (req: Request, res: Response) => {
     if (!isLogged(req)) return res.redirect('/login');
 
@@ -80,7 +80,7 @@ router.post('/profiles/buyer', async (req: Request, res: Response) => {
     return res.redirect('/profiles/buyer?success=Perfil atualizado com sucesso');
 });
 
-/* TELA PERFIL VENDEDOR */
+
 router.get('/profiles/seller', async (req: Request, res: Response) => {
     if (!isLogged(req)) return res.redirect('/login');
 
@@ -104,7 +104,7 @@ router.get('/profiles/seller', async (req: Request, res: Response) => {
     });
 });
 
-/* SALVAR PERFIL VENDEDOR */
+
 router.post('/profiles/seller', async (req: Request, res: Response) => {
     if (!isLogged(req)) return res.redirect('/login');
 
@@ -153,7 +153,7 @@ router.post('/profiles/seller', async (req: Request, res: Response) => {
     return res.redirect('/profiles/seller?success=Perfil atualizado com sucesso');
 });
 
-/* PERFIL PÚBLICO DO VENDEDOR */
+
 router.get('/sellers/:id', async (req: Request, res: Response) => {
     const sellerId = Number(req.params.id);
 
