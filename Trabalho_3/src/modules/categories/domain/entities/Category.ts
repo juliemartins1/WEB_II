@@ -1,4 +1,5 @@
 import { NotImplementedError } from "../../../../shared/errors/NotImplementedError.js";
+import crypto from "node:crypto";
 
 export type CategoryKind = "income" | "expense";
 
@@ -25,7 +26,19 @@ export class Category {
     this.createdAt = props.createdAt;
   }
 
-  public static create(_props: CategoryProps): Category {
-    throw new NotImplementedError("Implement category creation and validation rules.");
+  public static create(props: CategoryProps): Category {
+    const name = props.name.trim();
+
+    if (!name) {
+      throw new Error("Category name is required.");
+    }
+
+    return new Category({
+      id: props.id ?? crypto.randomUUID(),
+      userId: props.userId,
+      name,
+      kind: props.kind,
+      createdAt: props.createdAt ?? new Date()
+    });
   }
 }
