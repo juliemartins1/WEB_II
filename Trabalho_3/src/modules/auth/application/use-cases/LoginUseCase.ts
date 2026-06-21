@@ -39,7 +39,7 @@ export class LoginUseCase {
       throw new InvalidCredentialsError();
     }
 
-    const token = await this.tokenService.generate(user.id);
+    const token = await this.tokenService.sign({ userId: user.id });
 
     return {
       user,

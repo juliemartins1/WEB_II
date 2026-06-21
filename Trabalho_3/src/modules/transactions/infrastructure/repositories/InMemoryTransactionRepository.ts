@@ -1,21 +1,33 @@
-import { NotImplementedError } from "../../../../shared/errors/NotImplementedError.js";
 import type { Transaction } from "../../domain/entities/Transaction.js";
 import type { TransactionFilters, TransactionRepository } from "../../domain/repositories/TransactionRepository.js";
 
 export class InMemoryTransactionRepository implements TransactionRepository {
-  public async findById(_id: string): Promise<Transaction | null> {
-    throw new NotImplementedError("Implement in-memory transaction lookup by id.");
+  private readonly transactions: Transaction[] = [];
+
+  public async findById(id: string): Promise<Transaction | null> {
+    return this.transactions.find((transaction) => transaction.id === id) ?? null;
   }
 
-  public async listByUserId(_userId: string, _filters?: TransactionFilters): Promise<Transaction[]> {
-    throw new NotImplementedError("Implement in-memory transaction listing.");
+  public async listByUserId(userId: string, filters?: TransactionFilters): Promise<Transaction[]> {
+    return this.transactions.filter((transaction) => {
+      if (transaction.userId !== userId) return false;
+      if (filters?.categoryId && transaction.categoryId !== filters.categoryId) return false;
+      if (filters?.type && transaction.type !== filters.type) return false;
+      if (filters?.month && transaction.occurredAt.getUTCMonth() + 1 !== filters.month) return false;
+      if (filters?.year && transaction.occurredAt.getUTCFullYear() !== filters.year) return false;
+      return true;
+    });
   }
 
-  public async create(_transaction: Transaction): Promise<void> {
-    throw new NotImplementedError("Implement in-memory transaction persistence.");
+  public async create(transaction: Transaction): Promise<void> {
+    this.transactions.push(transaction);
   }
 
-  public async update(_transaction: Transaction): Promise<void> {
-    throw new NotImplementedError("Implement in-memory transaction update.");
+  public async update(transaction: Transaction): Promise<void> {
+    const index = this.transactions.findIndex((item) => item.id === transaction.id);
+
+    if (index >= 0) {
+      this.transactions[index] = transaction;
+    }
   }
 }

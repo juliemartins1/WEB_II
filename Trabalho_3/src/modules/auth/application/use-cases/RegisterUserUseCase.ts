@@ -46,7 +46,7 @@ export class RegisterUserUseCase {
 
     await this.userRepository.create(user);
 
-    const token = await this.tokenService.generate(user.id);
+    const token = await this.tokenService.sign({ userId: user.id });
 
     return {
       user,
