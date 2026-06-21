@@ -1,5 +1,5 @@
 import { NotImplementedError } from "../../../../shared/errors/NotImplementedError.js";
-
+import crypto from "node:crypto";
 export type TransactionType = "income" | "expense";
 export type ExpenseStatus = "pending" | "paid";
 
@@ -41,11 +41,44 @@ export class Transaction {
     this.createdAt = props.createdAt;
   }
 
-  public static create(_props: TransactionProps): Transaction {
-    throw new NotImplementedError("Implement transaction creation and validation rules.");
+  public static create(props: TransactionProps): Transaction {
+    if (props.amount <= 0) {
+      throw new Error("Transaction amount must be greater than zero.");     }
+
+    return new Transaction({
+      id: props.id ?? crypto.randomUUID(),
+      userId: props.userId,
+      categoryId: props.categoryId,
+      type: props.type,
+      description: props.description.trim(),
+      amount: props.amount,
+      occurredAt: props.occurredAt,
+      status: props.type === "expense" ? "pending" : null,
+      paidAt: null,
+      createdAt: props.createdAt ?? new Date()
+    });
   }
 
-  public markAsPaid(_paidAt?: Date): Transaction {
-    throw new NotImplementedError("Implement expense payment transition.");
+  public markAsPaid(paidAt?: Date): Transaction {
+    if (this.type !== "expense") {
+      throw new Error("Only expenses can be marked as paid.");
+    }
+
+    if (this.status === "paid") {
+      throw new Error("Expense already paid.");
+    }
+
+    return new Transaction({
+      id: this.id,
+      userId: this.userId,
+      categoryId: this.categoryId,
+      type: this.type,
+      description: this.description,
+      amount: this.amount,
+      occurredAt: this.occurredAt,
+      status: "paid",
+      paidAt: paidAt ?? new Date(),
+      createdAt: this.createdAt
+    });
   }
 }

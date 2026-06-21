@@ -26,22 +26,16 @@ export class User {
   public static create(props: UserProps): User {
     const name = props.name.trim();
     const email = props.email.trim().toLowerCase();
-    
-    if(!name) {
-      throw new Error("Nome é obrigatório,");
-    }
-    if(!email){
-      throw new Error("Email é obrigatório.");
+
+    if (!name) {
+      throw new Error("User name is required.");
     }
 
-    return new User({
-      id: props.id ?? crypto.randomUUID(),
-      name,
-      email,
-      passwordHash: props.passwordHash,
-      createdAt: props.createdAt ?? new Date(),
-    });
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+    if (!emailRegex.test(email)) {
+      throw new Error("A valid user email is required.");
+    }
   }
   
 }

@@ -5,9 +5,7 @@ import { NotImplementedError } from "../../../../shared/errors/NotImplementedErr
 export class ListCategoriesUseCase {
   constructor(private readonly categoryRepository: CategoryRepository) {}
 
-  public async execute(_userId: string): Promise<Category[]> {
-    void this.categoryRepository;
-
-    throw new NotImplementedError("Implement category listing.");
+  public async execute(userId: string): Promise<Category[]> {
+    return this.categoryRepository.listByUserId(userId);
   }
 }

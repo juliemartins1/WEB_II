@@ -3,19 +3,30 @@ import type { Category } from "../../domain/entities/Category.js";
 import type { CategoryRepository } from "../../domain/repositories/CategoryRepository.js";
 
 export class InMemoryCategoryRepository implements CategoryRepository {
-  public async findById(_id: string): Promise<Category | null> {
-    throw new NotImplementedError("Implement in-memory category lookup by id.");
+  private categories: Category[] = [];
+
+  async findById(id: string): Promise<Category | null> {
+    return this.categories.find(c => c.id === id) ?? null;
   }
 
-  public async findByUserIdAndName(_userId: string, _name: string): Promise<Category | null> {
-    throw new NotImplementedError("Implement in-memory category lookup by user and name.");
+  async findByUserIdAndName(
+    userId: string,
+    name: string
+  ): Promise<Category | null> {
+    return (
+      this.categories.find(
+        c =>
+          c.userId === userId &&
+          c.name.toLowerCase() === name.toLowerCase()
+      ) ?? null
+    );
   }
 
-  public async listByUserId(_userId: string): Promise<Category[]> {
-    throw new NotImplementedError("Implement in-memory category listing.");
+  async listByUserId(userId: string): Promise<Category[]> {
+    return this.categories.filter(c => c.userId === userId);
   }
 
-  public async create(_category: Category): Promise<void> {
-    throw new NotImplementedError("Implement in-memory category persistence.");
+  async create(category: Category): Promise<void> {
+    this.categories.push(category);
   }
 }
