@@ -40,7 +40,6 @@ npm run test:integration
 
 ### Usando o Thunder Client (VS Code)
 
-Instala a extensão **Thunder Client** no VS Code, clica no ícone de raio na barra lateral e segue o fluxo abaixo.
 
 > As rotas protegidas precisam do header `Authorization: Bearer <token>`. O token é retornado no cadastro ou no login, basta copiar e colar.
 
