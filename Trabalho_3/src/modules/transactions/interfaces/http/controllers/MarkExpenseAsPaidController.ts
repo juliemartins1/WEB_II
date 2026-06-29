@@ -13,7 +13,7 @@ export class MarkExpenseAsPaidController {
     try {
       const transaction = await this.markExpenseAsPaidUseCase.execute({
         userId: request.auth.userId,
-        transactionId: request.params.id,
+        transactionId: String(request.params.id),
         paidAt: request.body.paidAt ? new Date(request.body.paidAt) : undefined
       });
 
