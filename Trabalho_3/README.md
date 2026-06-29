@@ -208,30 +208,34 @@ GET /reports/monthly-balance?month=6&year=2026
 GET /reports/category-summary?month=6&year=2026
 ```
 
+
+
 ## Testes
 
-O projeto possui testes unitários e testes de integração.
+Durante o desenvolvimento foram criados testes unitários e testes de integração para verificar se as principais funcionalidades do sistema estavam funcionando corretamente.
 
-Os testes unitários verificam regras isoladas do domínio e dos casos de uso.
+Os testes unitários foram utilizados para validar as regras de negócio das entidades e dos casos de uso, garantindo que cada parte do sistema se comportasse como esperado de forma isolada.
 
-Os testes de integração verificam o fluxo completo pelas rotas HTTP, incluindo cadastro, login, criação de categorias, criação de lançamentos, filtros, relatórios e pagamento de despesa.
+Já os testes de integração foram feitos para verificar o funcionamento completo da API, desde o recebimento da requisição até a resposta enviada ao cliente. Nesses testes foram verificados fluxos como:
 
-Resultado da suíte:
+* cadastro de usuário;
+* login e autenticação com JWT;
+* criação e listagem de categorias;
+* cadastro de receitas e despesas;
+* filtros de transações;
+* geração dos relatórios;
+* pagamento de despesas.
+
+Ao final do desenvolvimento, todos os testes estavam sendo executados com sucesso.
+
+**Resultado obtido:**
 
 ```text
-12 arquivos de teste aprovados
+12 arquivos de teste executados
 27 testes aprovados
+0 falhas
 ```
 
-## Roteiro simples para o vídeo
+Além dos testes automatizados, também foram realizados testes manuais utilizando o Thunder Client para validar as rotas da API e conferir se as respostas retornadas estavam corretas.
 
-1. Apresentar o objetivo do sistema.
-2. Mostrar a estrutura de pastas.
-3. Explicar rapidamente as camadas: domain, application, infrastructure, interfaces/http e main.
-4. Mostrar a entidade `Transaction`, explicando que valor não pode ser menor ou igual a zero e que despesa começa como pendente.
-5. Mostrar um caso de uso, por exemplo `CreateTransactionUseCase`, explicando que ele valida a categoria e cria o lançamento para o usuário autenticado.
-6. Mostrar os repositórios em memória.
-7. Mostrar as rotas principais.
-8. Executar `npm test` e mostrar os testes passando.
-9. Finalizar explicando que o backend ficou separado, testável e fácil de evoluir.
 ```
