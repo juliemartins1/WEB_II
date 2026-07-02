@@ -116,7 +116,7 @@ npm run test:integration
 
 ```json
 {
-  "categoryId": "<id-da-categoria>",
+  "categoryId": "bc638c36-cbe7-46ec-8098-5b849f5e0fd4",
   "type": "expense",
   "description": "Almoço",
   "amount": 35.90,
@@ -142,7 +142,7 @@ npm run test:integration
 #### 7. Marcar despesa como paga
 
 - **Method:** `PATCH`
-- **URL:** `http://localhost:3000/transactions/<id-da-transacao>/pay`
+- **URL:** `http://localhost:3000/transactions/4c9a8a9e-428f-415c-85c2-3f0233f5bf97/pay`
 - **Headers:**
   - `Authorization: Bearer <token>`
 
